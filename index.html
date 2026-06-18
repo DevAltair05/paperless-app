@@ -693,16 +693,59 @@ function runExport(){
     '"TOTAL","","","'+totalAmt.toFixed(2)+'","",""',
     '"Exported by Paperless — Dev Nahin","'+new Date().toLocaleDateString()+'","","","",""'
   ].join('\n');
-  const blob=new Blob([csv],{type:'text/csv'});
-  const url=URL.createObjectURL(blob);
+
+  const fileName='paperless_expenses_'+new Date().toISOString().slice(0,10)+'.csv';
+
+  // Method 1 — data URI (works in WebView / Median APK)
+  const dataUri='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
   const a=document.createElement('a');
-  a.href=url;
-  a.download='paperless_expenses_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.setAttribute('href',dataUri);
+  a.setAttribute('download',fileName);
+  document.body.appendChild(a);
   a.click();
-  URL.revokeObjectURL(url);
+  document.body.removeChild(a);
+
+  // Method 2 — Android WebView fallback popup (copy CSV manually)
+  setTimeout(()=>{
+    const existing=document.getElementById('csv-popup');
+    if(existing) existing.remove();
+    const popup=document.createElement('div');
+    popup.id='csv-popup';
+    popup.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
+    const safeCSV=csv.replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/\$/g,'\\$');
+    popup.innerHTML=`
+      <div style="background:#fff;border-radius:12px;padding:1.5rem;width:100%;max-width:420px;box-shadow:0 8px 32px rgba(0,0,0,.2)">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+          <div style="font-size:14px;font-weight:600;color:#1a1a1a">Export — ${fileName}</div>
+          <button onclick="document.getElementById('csv-popup').remove()"
+            style="background:none;border:none;font-size:20px;cursor:pointer;color:#9e9e9e;line-height:1">×</button>
+        </div>
+        <div style="font-size:12px;color:#6b6b6b;margin-bottom:.75rem">
+          If the file did not download automatically, tap <strong>Copy all</strong> then paste into a Notes or Email app.
+        </div>
+        <textarea id="csv-text" style="width:100%;height:160px;font-size:10px;font-family:monospace;border:1px solid #e5e5e5;border-radius:8px;padding:.625rem;resize:none;color:#1a1a1a" readonly>${csv}</textarea>
+        <div style="display:flex;gap:8px;margin-top:.875rem;justify-content:flex-end">
+          <button onclick="document.getElementById('csv-popup').remove()"
+            style="padding:7px 16px;border-radius:8px;border:1px solid #e5e5e5;background:transparent;font-size:13px;cursor:pointer;font-family:inherit">
+            Close
+          </button>
+          <button onclick="
+            const t=document.getElementById('csv-text');
+            t.select();
+            t.setSelectionRange(0,99999);
+            navigator.clipboard && navigator.clipboard.writeText(t.value).then(()=>showToast('CSV copied — paste into Excel or email')).catch(()=>{document.execCommand('copy');showToast('CSV copied');});
+            !navigator.clipboard && (document.execCommand('copy'),showToast('CSV copied — paste into Excel or email'));"
+            style="padding:7px 16px;border-radius:8px;border:none;background:#3C3489;color:#EEEDFE;font-size:13px;cursor:pointer;font-weight:500;font-family:inherit">
+            Copy all
+          </button>
+        </div>
+      </div>`;
+    document.body.appendChild(popup);
+  }, 300);
+
   const res=document.getElementById('export-result');
   res.style.display='flex';
-  document.getElementById('export-msg').textContent='paperless_expenses_'+new Date().toISOString().slice(0,10)+'.csv downloaded.';
+  document.getElementById('export-msg').textContent=fileName+' — tap Copy all if download did not start.';
 }
 // ── Real camera (mobile) ──────────────────────
 function triggerScan(){
