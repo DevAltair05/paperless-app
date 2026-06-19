@@ -876,5 +876,19 @@ function showToast(msg){
   toastTimer=setTimeout(()=>t.classList.remove('show'),2400);
 }
 </script>
+
+<script>
+// ── Service Worker — offline support ──────────
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('/paperless-app/sw.js')
+    .then(function(reg){
+      console.log('Paperless: offline ready ✅');
+    }).catch(function(err){
+      console.log('Paperless: SW registration failed',err);
+    });
+  });
+}
+</script>
 </body>
 </html>
