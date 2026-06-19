@@ -344,33 +344,50 @@ body{font-family:var(--font-sans);background:var(--color-background-tertiary);mi
 
       <!-- EXPORT -->
       <div class="panel" id="panel-export">
-        <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem;line-height:1.6">Choose a format and export your receipts. The file opens in your mail app or share sheet, ready to send to your accountant.</div>
+        <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem;line-height:1.6">Export your receipts as CSV — works on all devices. Excel, PDF and Email export coming when Firebase backend is connected.</div>
         <div class="section-header"><div class="section-title">Export format</div></div>
         <div class="export-grid">
+
+          <!-- CSV — fully working -->
           <div class="export-card selected" id="fmt-csv" onclick="selectFmt('csv')">
             <div class="export-icon" style="background:#E1F5EE"><i class="ti ti-file-spreadsheet" style="font-size:22px;color:#0F6E56"></i></div>
-            <div style="font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px">CSV file</div>
-            <div style="font-size:12px;color:var(--color-text-secondary)">Works with Excel, Sheets, QuickBooks, and most accounting apps</div>
+            <div style="font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px">
+              CSV file <span style="background:#E1F5EE;color:#085041;font-size:10px;padding:2px 6px;border-radius:20px;font-weight:500">✅ Working</span>
+            </div>
+            <div style="font-size:12px;color:var(--color-text-secondary)">Works with Excel, Google Sheets, QuickBooks and most accounting apps</div>
           </div>
-          <div class="export-card" id="fmt-xlsx" onclick="selectFmt('xlsx')">
-            <div class="export-icon" style="background:#E1F5EE"><i class="ti ti-file-excel" style="font-size:22px;color:#0F6E56"></i></div>
-            <div style="font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px">Excel (.xlsx) <span style="background:#FAEEDA;color:#633806;font-size:10px;padding:2px 6px;border-radius:20px;font-weight:500">Premium</span></div>
-            <div style="font-size:12px;color:var(--color-text-secondary)">Formatted spreadsheet with totals and category colors</div>
+
+          <!-- Excel — coming soon -->
+          <div class="export-card" id="fmt-xlsx" onclick="showComingSoon('Excel export')">
+            <div class="export-icon" style="background:#f8f8f8"><i class="ti ti-file-excel" style="font-size:22px;color:#9e9e9e"></i></div>
+            <div style="font-size:14px;font-weight:500;color:var(--color-text-tertiary);margin-bottom:4px">
+              Excel (.xlsx) <span style="background:#f1f0ee;color:#9e9e9e;font-size:10px;padding:2px 6px;border-radius:20px;font-weight:500">Coming soon</span>
+            </div>
+            <div style="font-size:12px;color:var(--color-text-tertiary)">Formatted spreadsheet with totals and category colors — requires Firebase backend</div>
           </div>
-          <div class="export-card" id="fmt-pdf" onclick="selectFmt('pdf')">
-            <div class="export-icon" style="background:#fef2f2"><i class="ti ti-file-text" style="font-size:22px;color:#b91c1c"></i></div>
-            <div style="font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px">PDF report <span style="background:#FAEEDA;color:#633806;font-size:10px;padding:2px 6px;border-radius:20px;font-weight:500">Premium</span></div>
-            <div style="font-size:12px;color:var(--color-text-secondary)">Print-ready expense report with your branding</div>
+
+          <!-- PDF — coming soon -->
+          <div class="export-card" id="fmt-pdf" onclick="showComingSoon('PDF report')">
+            <div class="export-icon" style="background:#f8f8f8"><i class="ti ti-file-text" style="font-size:22px;color:#9e9e9e"></i></div>
+            <div style="font-size:14px;font-weight:500;color:var(--color-text-tertiary);margin-bottom:4px">
+              PDF report <span style="background:#f1f0ee;color:#9e9e9e;font-size:10px;padding:2px 6px;border-radius:20px;font-weight:500">Coming soon</span>
+            </div>
+            <div style="font-size:12px;color:var(--color-text-tertiary)">Print-ready expense report with your branding — requires Firebase backend</div>
           </div>
-          <div class="export-card" id="fmt-email" onclick="selectFmt('email')">
-            <div class="export-icon" style="background:#E6F1FB"><i class="ti ti-mail" style="font-size:22px;color:#185FA5"></i></div>
-            <div style="font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px">Email directly</div>
-            <div style="font-size:12px;color:var(--color-text-secondary)">Opens your mail app with the attachment ready to send</div>
+
+          <!-- Email — coming soon -->
+          <div class="export-card" id="fmt-email" onclick="showComingSoon('Email export')">
+            <div class="export-icon" style="background:#f8f8f8"><i class="ti ti-mail" style="font-size:22px;color:#9e9e9e"></i></div>
+            <div style="font-size:14px;font-weight:500;color:var(--color-text-tertiary);margin-bottom:4px">
+              Email directly <span style="background:#f1f0ee;color:#9e9e9e;font-size:10px;padding:2px 6px;border-radius:20px;font-weight:500">Coming soon</span>
+            </div>
+            <div style="font-size:12px;color:var(--color-text-tertiary)">Sends CSV to your email automatically — requires Firebase backend</div>
           </div>
+
         </div>
         <div style="margin-top:1.25rem;display:flex;gap:10px">
-          <button class="btn success" onclick="runExport()"><i class="ti ti-download"></i> Export 3 receipts as CSV</button>
-          <button class="btn"><i class="ti ti-share"></i> Share sheet</button>
+          <button class="btn success" onclick="runExport()"><i class="ti ti-download"></i> Export as CSV</button>
+          <button class="btn" onclick="showComingSoon('Share sheet')"><i class="ti ti-share"></i> Share sheet</button>
         </div>
         <div id="export-result" style="margin-top:1rem;padding:.875rem 1rem;background:#E1F5EE;border-radius:var(--border-radius-md);font-size:13px;color:#085041;display:none;align-items:center;gap:8px">
           <i class="ti ti-circle-check"></i> <span id="export-msg"></span>
@@ -454,9 +471,10 @@ body{font-family:var(--font-sans);background:var(--color-background-tertiary);mi
             </select>
           </div>
         </div>
-        <div style="display:flex;gap:8px">
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
           <button class="btn primary" onclick="showToast('Settings saved')"><i class="ti ti-device-floppy"></i> Save settings</button>
-          <button class="btn danger"><i class="ti ti-trash"></i> Delete account</button>
+          <button class="btn" onclick="confirmLogout()"><i class="ti ti-logout"></i> Log out</button>
+          <button class="btn danger" onclick="confirmDeleteAccount()"><i class="ti ti-trash"></i> Delete account</button>
         </div>
       </div>
 
@@ -674,7 +692,43 @@ function refreshDashboard(){
   document.querySelector('.limit-text').textContent=used+' of 10 used';
 }
 
-function selectFmt(fmt){['csv','xlsx','pdf','email'].forEach(f=>document.getElementById('fmt-'+f).classList.toggle('selected',f===fmt));}
+function selectFmt(fmt){
+  // Only CSV is available right now
+  if(fmt !== 'csv'){
+    showComingSoon(fmt+' export');
+    return;
+  }
+  ['csv','xlsx','pdf','email'].forEach(f=>document.getElementById('fmt-'+f).classList.toggle('selected',f===fmt));
+}
+
+function showComingSoon(feature){
+  const existing=document.getElementById('coming-soon-popup');
+  if(existing) existing.remove();
+  const popup=document.createElement('div');
+  popup.id='coming-soon-popup';
+  popup.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
+  popup.innerHTML=`
+    <div style="background:#fff;border-radius:12px;padding:1.5rem;width:100%;max-width:340px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.15)">
+      <div style="width:48px;height:48px;background:#EEEDFE;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto .75rem">
+        <i class="ti ti-clock" style="font-size:24px;color:#3C3489"></i>
+      </div>
+      <div style="font-size:15px;font-weight:600;color:#1a1a1a;margin-bottom:.5rem">${feature}</div>
+      <div style="font-size:13px;color:#6b6b6b;line-height:1.6;margin-bottom:1.25rem">
+        This feature requires the Firebase backend to be connected. It will be available in the full launch version of Paperless.
+      </div>
+      <div style="display:flex;gap:8px;justify-content:center">
+        <button onclick="document.getElementById('coming-soon-popup').remove()"
+          style="padding:8px 20px;border-radius:8px;border:1px solid #e5e5e5;background:transparent;font-size:13px;cursor:pointer;font-family:inherit">
+          Got it
+        </button>
+        <button onclick="document.getElementById('coming-soon-popup').remove();showToast('CSV export is fully working now')"
+          style="padding:8px 20px;border-radius:8px;border:none;background:#3C3489;color:#EEEDFE;font-size:13px;cursor:pointer;font-weight:500;font-family:inherit">
+          Use CSV instead
+        </button>
+      </div>
+    </div>`;
+  document.body.appendChild(popup);
+}
 
 // ── Real CSV export — actually downloads a file ──
 function runExport(){
@@ -868,8 +922,154 @@ function runDemo(type){
       </div>`;
   },1200);
 }
-let toastTimer;
-function showToast(msg){
+// ── Logout ────────────────────────────────────
+function confirmLogout(){
+  const existing=document.getElementById('logout-popup');
+  if(existing) existing.remove();
+  const popup=document.createElement('div');
+  popup.id='logout-popup';
+  popup.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
+  popup.innerHTML=`
+    <div style="background:#fff;border-radius:12px;padding:1.5rem;width:100%;max-width:320px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.15)">
+      <div style="width:48px;height:48px;background:#EEEDFE;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto .875rem">
+        <i class="ti ti-logout" style="font-size:24px;color:#3C3489"></i>
+      </div>
+      <div style="font-size:15px;font-weight:600;color:#1a1a1a;margin-bottom:.5rem">Log out?</div>
+      <div style="font-size:13px;color:#6b6b6b;line-height:1.6;margin-bottom:1.25rem">
+        You will be returned to the login screen. Your receipts will be waiting when you log back in.
+      </div>
+      <div style="display:flex;gap:8px;justify-content:center">
+        <button onclick="document.getElementById('logout-popup').remove()"
+          style="padding:8px 20px;border-radius:8px;border:1px solid #e5e5e5;background:transparent;font-size:13px;cursor:pointer;font-family:inherit">
+          Cancel
+        </button>
+        <button onclick="runLogout()"
+          style="padding:8px 20px;border-radius:8px;border:none;background:#3C3489;color:#EEEDFE;font-size:13px;cursor:pointer;font-weight:500;font-family:inherit">
+          Log out
+        </button>
+      </div>
+    </div>`;
+  document.body.appendChild(popup);
+}
+
+function runLogout(){
+  document.getElementById('logout-popup').remove();
+  // Reset app state
+  receipts.length=0;
+  refreshReceiptList();
+  refreshDashboard();
+  // Show login screen
+  showLoginScreen();
+  showToast('Logged out successfully');
+}
+
+// ── Delete Account ────────────────────────────
+function confirmDeleteAccount(){
+  const existing=document.getElementById('delete-popup');
+  if(existing) existing.remove();
+  const popup=document.createElement('div');
+  popup.id='delete-popup';
+  popup.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
+  popup.innerHTML=`
+    <div style="background:#fff;border-radius:12px;padding:1.5rem;width:100%;max-width:340px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.2)">
+      <div style="width:48px;height:48px;background:#fef2f2;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto .875rem">
+        <i class="ti ti-trash" style="font-size:24px;color:#b91c1c"></i>
+      </div>
+      <div style="font-size:15px;font-weight:600;color:#1a1a1a;margin-bottom:.5rem">Delete account?</div>
+      <div style="font-size:13px;color:#6b6b6b;line-height:1.6;margin-bottom:1rem">
+        This will permanently delete your account and all your receipts. <strong>This cannot be undone.</strong>
+      </div>
+      <div style="background:#fef2f2;border-radius:8px;padding:.75rem;margin-bottom:1.25rem;font-size:12px;color:#b91c1c">
+        ⚠️ All ${receipts.length} receipt${receipts.length!==1?'s':''} will be deleted forever
+      </div>
+      <div style="display:flex;gap:8px;justify-content:center">
+        <button onclick="document.getElementById('delete-popup').remove()"
+          style="padding:8px 20px;border-radius:8px;border:1px solid #e5e5e5;background:transparent;font-size:13px;cursor:pointer;font-family:inherit">
+          Cancel
+        </button>
+        <button onclick="runDeleteAccount()"
+          style="padding:8px 20px;border-radius:8px;border:none;background:#b91c1c;color:#fff;font-size:13px;cursor:pointer;font-weight:500;font-family:inherit">
+          Yes, delete everything
+        </button>
+      </div>
+    </div>`;
+  document.body.appendChild(popup);
+}
+
+function runDeleteAccount(){
+  document.getElementById('delete-popup').remove();
+  // Clear all data
+  receipts.length=0;
+  refreshReceiptList();
+  refreshDashboard();
+  // Show login screen
+  showLoginScreen();
+  showToast('Account deleted');
+}
+
+// ── Login Screen ──────────────────────────────
+function showLoginScreen(){
+  const existing=document.getElementById('login-screen');
+  if(existing) existing.remove();
+  const screen=document.createElement('div');
+  screen.id='login-screen';
+  screen.style.cssText='position:fixed;inset:0;background:#f1f0ee;z-index:99999;display:flex;align-items:center;justify-content:center;padding:1rem';
+  screen.innerHTML=`
+    <div style="background:#fff;border-radius:16px;padding:2rem;width:100%;max-width:360px;box-shadow:0 8px 40px rgba(0,0,0,.1)">
+      <div style="text-align:center;margin-bottom:1.75rem">
+        <div style="width:56px;height:56px;background:#3C3489;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto .875rem">
+          <i class="ti ti-scan" style="font-size:28px;color:#EEEDFE"></i>
+        </div>
+        <div style="font-size:22px;font-weight:600;color:#1a1a1a">Paperless</div>
+        <div style="font-size:13px;color:#9e9e9e;margin-top:4px">by Dev Nahin</div>
+      </div>
+      <div style="margin-bottom:1rem">
+        <label style="font-size:12px;color:#6b6b6b;display:block;margin-bottom:4px">Email</label>
+        <input id="login-email" type="email" placeholder="you@example.com"
+          style="width:100%;padding:10px 12px;border:1px solid #e5e5e5;border-radius:8px;font-size:14px;font-family:inherit;outline:none;color:#1a1a1a">
+      </div>
+      <div style="margin-bottom:1.25rem">
+        <label style="font-size:12px;color:#6b6b6b;display:block;margin-bottom:4px">Password</label>
+        <input id="login-password" type="password" placeholder="••••••••"
+          style="width:100%;padding:10px 12px;border:1px solid #e5e5e5;border-radius:8px;font-size:14px;font-family:inherit;outline:none;color:#1a1a1a">
+      </div>
+      <button onclick="runLogin()"
+        style="width:100%;padding:11px;border-radius:8px;border:none;background:#3C3489;color:#EEEDFE;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;margin-bottom:.75rem">
+        Log in
+      </button>
+      <button onclick="runLogin()"
+        style="width:100%;padding:11px;border-radius:8px;border:1px solid #e5e5e5;background:transparent;color:#1a1a1a;font-size:14px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px">
+        <i class="ti ti-brand-google" style="font-size:16px;color:#EA4335"></i> Continue with Google
+      </button>
+      <div style="text-align:center;margin-top:1rem;font-size:12px;color:#9e9e9e">
+        No account? <span onclick="runLogin()" style="color:#3C3489;cursor:pointer;font-weight:500">Sign up free</span>
+      </div>
+    </div>`;
+  document.body.appendChild(screen);
+}
+
+function runLogin(){
+  const screen=document.getElementById('login-screen');
+  if(screen){
+    screen.style.opacity='0';
+    screen.style.transition='opacity 0.3s';
+    setTimeout(()=>screen.remove(),300);
+  }
+  // Restore default receipts after login
+  if(receipts.length===0){
+    receipts.push(
+      {merchant:'Shake Shack',note:'Order #4419',date:'2026-06-14',total:'42.80',tax:'3.80',cat:'Food'},
+      {merchant:'Figma',note:'Monthly subscription',date:'2026-06-12',total:'15.00',tax:'0.00',cat:'Software'},
+      {merchant:'Grab — Airport',note:'Trip to SGX',date:'2026-06-10',total:'183.60',tax:'16.20',cat:'Travel'}
+    );
+    refreshReceiptList();
+    refreshDashboard();
+  }
+  switchPanel('dashboard',document.querySelector('[data-panel=dashboard]'));
+  showToast('Welcome back to Paperless 👋');
+}
+
+
   const t=document.getElementById('toast');
   t.textContent=msg;t.classList.add('show');
   clearTimeout(toastTimer);
