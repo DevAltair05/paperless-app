@@ -4,10 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Paperless — by Dev Nahin</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.30.0/iconfont/tabler-icons.min.css">
+<link rel="icon" type="image/jpeg" href="image_bfe14a.jpg">
+<link rel="apple-touch-icon" href="image_bfe14a.jpg">
+
+<!-- Firebase Compat SDKs -->
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -20,10 +24,23 @@
   --r:8px;--r2:12px;
   --font:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 }
-html,body{height:100%;overflow:hidden}
-body{font-family:var(--font);background:var(--bg3);display:flex;flex-direction:column}
+html,body{height:100%;overflow:hidden;background:var(--bg3);display:flex;flex-direction:column}
 
-/* ── BOTTOM NAV (mobile) ── */
+/* ── SVG Icons ── */
+.icon {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+/* ── BOTTOM NAV ── */
 .bottom-nav{
   display:flex;flex-shrink:0;
   background:var(--bg);border-top:1px solid var(--border);
@@ -31,13 +48,13 @@ body{font-family:var(--font);background:var(--bg3);display:flex;flex-direction:c
 }
 .bn-item{
   flex:1;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;gap:3px;border:none;background:transparent;
+  justify-content:center;gap:4px;border:none;background:transparent;
   font-family:var(--font);cursor:pointer;color:var(--text3);
   font-size:10px;padding:6px 2px;transition:color .15s;
 }
-.bn-item i{font-size:22px}
+.bn-item .icon{width:22px;height:22px}
 .bn-item.active{color:var(--purple)}
-.bn-item.active i{color:var(--purple)}
+.bn-item.active .icon{color:var(--purple)}
 
 /* ── TOPBAR ── */
 .topbar{
@@ -49,10 +66,27 @@ body{font-family:var(--font);background:var(--bg3);display:flex;flex-direction:c
   display:flex;align-items:center;gap:8px;flex:1;
 }
 .logo-badge{
-  width:30px;height:30px;background:var(--purple);border-radius:7px;
+  width:32px;height:32px;border-radius:8px;
   display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  overflow:hidden;
+  border: 1px solid var(--border);
+  background: var(--purple-light);
+  position: relative;
 }
-.logo-badge i{font-size:17px;color:var(--purple-light)}
+.logo-badge img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.logo-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--purple);
+  color: #fff;
+}
 .logo-name{font-size:16px;font-weight:600;color:var(--text)}
 .logo-by{font-size:11px;color:var(--text3)}
 .topbar-btn{
@@ -60,21 +94,25 @@ body{font-family:var(--font);background:var(--bg3);display:flex;flex-direction:c
   background:transparent;display:flex;align-items:center;justify-content:center;
   cursor:pointer;color:var(--text2);flex-shrink:0;
 }
-.topbar-btn i{font-size:18px}
 
-/* ── CONTENT ── */
-.content-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+/* ── CONTENT AREA ── */
+.content-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;background: var(--bg3)}
 .panel{display:none;padding:1rem}
 .panel.active{display:block}
 
 /* ── CARDS / STATS ── */
 .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
-.stat-card{background:var(--bg2);border-radius:var(--r2);padding:.875rem;border:1px solid var(--border)}
+@media (min-width: 600px) {
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+.stat-card{background:var(--bg);border-radius:var(--r2);padding:.875rem;border:1px solid var(--border)}
 .stat-label{font-size:11px;color:var(--text2);margin-bottom:4px;display:flex;align-items:center;gap:5px}
-.stat-label i{font-size:14px}
-.stat-value{font-size:20px;font-weight:600;color:var(--text)}
-.stat-sub{font-size:11px;color:var(--text3);margin-top:2px}
-.limit-track{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:6px}
+.stat-label .icon{width:14px;height:14px;color:var(--purple)}
+.stat-value{font-size:18px;font-weight:700;color:var(--text)}
+.stat-sub{font-size:10px;color:var(--text3);margin-top:2px}
+.limit-track{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-top:6px}
 .limit-fill{height:100%;background:var(--purple);border-radius:2px;width:30%;transition:width .3s ease}
 .limit-text{font-size:10px;color:var(--text3);margin-top:3px}
 
@@ -83,20 +121,19 @@ body{font-family:var(--font);background:var(--bg3);display:flex;flex-direction:c
 .sec-title{font-size:13px;font-weight:500;color:var(--text2)}
 
 /* ── RECEIPT LIST ── */
-.receipt-list{border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;margin-bottom:1rem}
-.receipt-row{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--border);cursor:pointer;touch-action:manipulation;background:var(--bg)}
+.receipt-list{border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;margin-bottom:1rem;background: var(--bg)}
+.receipt-row{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--border);cursor:pointer;touch-action:manipulation;background:var(--bg);width:100%;text-align:left;border-left:none;border-right:none;border-top:none}
 .receipt-row:last-child{border-bottom:none}
 .receipt-row:active{background:var(--bg2)}
 .receipt-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.receipt-icon i{font-size:17px}
 .receipt-info{flex:1;min-width:0}
-.receipt-merchant{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.receipt-merchant{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .receipt-meta{font-size:11px;color:var(--text3);margin-top:1px}
-.receipt-amount{font-size:14px;font-weight:600;color:var(--text);flex-shrink:0}
+.receipt-amount{font-size:13px;font-weight:700;color:var(--text);flex-shrink:0}
 .receipt-cat{flex-shrink:0}
 
 /* ── CATEGORY PILLS ── */
-.cat{display:inline-flex;align-items:center;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500}
+.cat{display:inline-flex;align-items:center;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600}
 .cat-food{background:var(--green-light);color:var(--green)}
 .cat-travel{background:var(--blue-light);color:var(--blue)}
 .cat-tech{background:var(--purple-light);color:var(--purple)}
@@ -104,7 +141,7 @@ body{font-family:var(--font);background:var(--bg3);display:flex;flex-direction:c
 .cat-other{background:#f1f0ee;color:#444}
 
 /* ── BUTTONS ── */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r);font-size:13px;cursor:pointer;border:1px solid var(--border2);background:var(--bg);color:var(--text);font-family:var(--font);touch-action:manipulation}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--r);font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--bg);color:var(--text);font-family:var(--font);touch-action:manipulation;transition:all 0.15s}
 .btn:active{background:var(--bg2)}
 .btn.primary{background:var(--purple);border-color:var(--purple);color:var(--purple-light)}
 .btn.primary:active{background:var(--purple2)}
@@ -114,59 +151,65 @@ body{font-family:var(--font);background:var(--bg3);display:flex;flex-direction:c
 .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:.875rem}
 
 /* ── SCAN AREA ── */
-.scan-area{border:2px dashed var(--border2);border-radius:var(--r2);padding:2rem 1.5rem;text-align:center;touch-action:manipulation;margin-bottom:1rem}
+.scan-area{border:2px dashed var(--border2);border-radius:var(--r2);padding:2rem 1.5rem;text-align:center;touch-action:manipulation;margin-bottom:1rem;background: var(--bg);cursor:pointer;transition: border-color .15s}
 .scan-area:active{background:var(--purple-light);border-color:var(--purple)}
 .scan-icon-wrap{width:56px;height:56px;background:var(--purple-light);border-radius:var(--r2);display:flex;align-items:center;justify-content:center;margin:0 auto .875rem}
-.scan-icon-wrap i{font-size:28px;color:var(--purple)}
+.scan-icon-wrap .icon{width:28px;height:28px;color:var(--purple)}
 
 /* ── SAMPLE CARDS ── */
 .sample-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:.5rem}
-.sample-card{border:1px solid var(--border);border-radius:var(--r);padding:.75rem .5rem;text-align:center;cursor:pointer;touch-action:manipulation;background:var(--bg)}
+.sample-card{border:1px solid var(--border);border-radius:var(--r);padding:.75rem .3rem;text-align:center;cursor:pointer;touch-action:manipulation;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center}
 .sample-card:active{background:var(--purple-light);border-color:var(--purple)}
 .sample-icon{width:32px;height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center;margin:0 auto .5rem}
-.sample-icon i{font-size:16px}
-.sample-label{font-size:12px;font-weight:500;color:var(--text)}
-.sample-sub{font-size:10px;color:var(--text3);margin-top:2px}
+.sample-icon .icon{width:16px;height:16px}
+.sample-label{font-size:11px;font-weight:600;color:var(--text)}
+.sample-sub{font-size:9px;color:var(--text3);margin-top:2px}
 
 /* ── SEARCH ── */
 .search-wrap{display:flex;gap:8px;margin-bottom:.875rem}
-.search-box{flex:1;display:flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:var(--r);padding:8px 12px;background:var(--bg2)}
-.search-box i{font-size:16px;color:var(--text3);flex-shrink:0}
+.search-box{flex:1;display:flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:var(--r);padding:8px 12px;background:var(--bg)}
+.search-box .icon{color:var(--text3)}
 .search-box input{border:none;background:transparent;font-size:13px;color:var(--text);outline:none;flex:1;font-family:var(--font)}
 .search-box input::placeholder{color:var(--text3)}
 
 /* ── EXPORT CARDS ── */
 .export-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
-.export-card{border:1px solid var(--border);border-radius:var(--r2);padding:1rem;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
+@media (min-width: 600px) {
+  .export-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+.export-card{border:1px solid var(--border);border-radius:var(--r2);padding:1rem;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;background: var(--bg)}
 .export-card:active{background:var(--bg2)}
 .export-card.selected{border:2px solid var(--purple);background:var(--purple-light)}
 .export-card.disabled{opacity:.55;cursor:default}
 .export-icon{width:38px;height:38px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;margin-bottom:.625rem}
-.export-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px}
-.export-sub{font-size:11px;color:var(--text2);line-height:1.4}
+.export-icon .icon{width:20px;height:20px}
+.export-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px}
+.export-sub{font-size:10px;color:var(--text2);line-height:1.4}
 
-/* ── PIPELINE ── */
-.step-flow{display:flex;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:1rem}
+/* ── PIPELINE & SETTINGS ── */
+.step-flow{display:flex;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:1rem;background: var(--bg)}
 .step-node{flex:1;padding:7px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9px;color:var(--text3);border-right:1px solid var(--border);text-align:center}
 .step-node:last-child{border-right:none}
-.step-node i{font-size:14px}
+.step-node .icon{width:14px;height:14px}
 .step-node.done{background:var(--green-light);color:var(--green)}
-.step-node.active{background:var(--purple-light);color:var(--purple);font-weight:500}
-.pipe-card{border:1px solid var(--border);border-radius:var(--r2);padding:.875rem;margin-bottom:.75rem}
+.step-node.active{background:var(--purple-light);color:var(--purple);font-weight:600}
+.pipe-card{border:1px solid var(--border);border-radius:var(--r2);padding:.875rem;margin-bottom:.75rem;background: var(--bg)}
 .pipe-head{display:flex;align-items:center;gap:8px;margin-bottom:.5rem}
 .pipe-icon{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.pipe-title{font-size:13px;font-weight:500;color:var(--text)}
-.pipe-desc{font-size:12px;color:var(--text2);line-height:1.5}
-.json-block{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:.75rem;font-family:monospace;font-size:11px;color:var(--text);line-height:1.6;margin-top:.625rem;overflow-x:auto}
+.pipe-title{font-size:13px;font-weight:600;color:var(--text)}
+.pipe-desc{font-size:11px;color:var(--text2);line-height:1.5}
+.json-block{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:.75rem;font-family:monospace;font-size:10px;color:var(--text);line-height:1.5;margin-top:.625rem;overflow-x:auto}
 .jk{color:var(--purple2)}.js{color:var(--green)}.jn{color:#993C1D}
 
 /* ── SETTINGS ── */
 .settings-group{margin-bottom:1.25rem}
-.sg-title{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:.625rem;padding-bottom:5px;border-bottom:1px solid var(--border)}
+.sg-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:.625rem;padding-bottom:5px;border-bottom:1px solid var(--border)}
 .setting-row{display:flex;align-items:center;padding:.75rem 0;border-bottom:1px solid var(--border);gap:10px}
 .setting-row:last-child{border-bottom:none}
 .setting-info{flex:1}
-.setting-label{font-size:13px;font-weight:500;color:var(--text)}
+.setting-label{font-size:13px;font-weight:600;color:var(--text)}
 .setting-desc{font-size:11px;color:var(--text2);margin-top:2px}
 .toggle{width:36px;height:20px;border-radius:10px;background:var(--border2);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;border:none}
 .toggle.on{background:var(--purple)}
@@ -182,70 +225,61 @@ body{font-family:var(--font);background:var(--bg3);display:flex;flex-direction:c
 .dev-role{font-size:12px;color:rgba(238,237,254,.7);margin-top:2px}
 .dev-tags{display:flex;gap:5px;margin-top:.5rem;flex-wrap:wrap}
 .dev-tag{font-size:10px;padding:2px 7px;border-radius:20px;background:rgba(255,255,255,.12);color:rgba(238,237,254,.9);font-weight:500}
-.about-sec-title{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:.625rem;padding-bottom:5px;border-bottom:1px solid var(--border)}
+.about-sec-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:.625rem;padding-bottom:5px;border-bottom:1px solid var(--border)}
 .tech-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:1rem}
-.tech-chip{border:1px solid var(--border);border-radius:var(--r);padding:.5rem;text-align:center}
-.tech-name{font-size:11px;font-weight:500;color:var(--text)}
+.tech-chip{border:1px solid var(--border);border-radius:var(--r);padding:.5rem;text-align:center;background: var(--bg)}
+.tech-name{font-size:11px;font-weight:600;color:var(--text)}
 .tech-sub{font-size:10px;color:var(--text3);margin-top:1px}
-.info-list{border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;margin-bottom:1rem}
+.info-list{border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;margin-bottom:1rem;background: var(--bg)}
 .info-row{display:flex;align-items:center;gap:10px;padding:.625rem .875rem;border-bottom:1px solid var(--border)}
 .info-row:last-child{border-bottom:none}
 .info-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.info-icon i{font-size:14px}
+.info-icon .icon{width:14px;height:14px}
 .info-label{font-size:11px;color:var(--text2)}
-.info-value{font-size:13px;color:var(--text);font-weight:500}
-.changelog-list{border:1px solid var(--border);border-radius:var(--r2);padding:.5rem .875rem;margin-bottom:1rem}
+.info-value{font-size:13px;color:var(--text);font-weight:600}
+.changelog-list{border:1px solid var(--border);border-radius:var(--r2);padding:.5rem .875rem;margin-bottom:1rem;background: var(--bg)}
 .cl-item{display:flex;align-items:flex-start;gap:8px;padding:.5rem 0;border-bottom:1px solid var(--border)}
 .cl-item:last-child{border-bottom:none}
 .cl-dot{width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0}
-.cl-ver{font-size:10px;font-weight:500;color:var(--text3);margin-bottom:2px}
+.cl-ver{font-size:10px;font-weight:600;color:var(--text3);margin-bottom:2px}
 .cl-desc{font-size:12px;color:var(--text)}
 .contact-row{display:flex;gap:8px;flex-wrap:wrap}
 
 /* ── MODALS ── */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:flex-end;justify-content:center;padding:0}
 .modal-bg.open{display:flex}
-.modal{background:var(--bg);border-radius:var(--r2) var(--r2) 0 0;width:100%;max-height:90vh;overflow-y:auto;padding:1.25rem}
+.modal{background:var(--bg);border-radius:20px 20px 0 0;width:100%;max-width:480px;max-height:85%;overflow-y:auto;padding:1.25rem;box-shadow: 0 -8px 24px rgba(0,0,0,0.15);margin: 0 auto}
 .modal-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto .875rem}
-.modal-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:1rem}
+.modal-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:1rem}
 .field{margin-bottom:.75rem}
-.field label{font-size:12px;color:var(--text2);display:block;margin-bottom:4px}
+.field label{font-size:12px;color:var(--text2);display:block;margin-bottom:4px;font-weight:500}
 .field input,.field select{width:100%;padding:9px 11px;border:1px solid var(--border2);border-radius:var(--r);font-size:14px;font-family:var(--font);background:var(--bg);color:var(--text);outline:none}
 .field input:focus,.field select:focus{border-color:var(--purple)}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .modal-btns{display:flex;gap:8px;margin-top:1rem}
 .modal-btns .btn{flex:1;justify-content:center}
 
-/* ── AI THINKING ── */
-.ai-thinking{display:flex;align-items:center;gap:8px;padding:.75rem 1rem;background:var(--purple-light);border-radius:var(--r);font-size:12px;color:var(--purple);margin:.75rem 0}
-.dot-pulse{display:flex;gap:4px}
-.dot-pulse span{width:5px;height:5px;border-radius:50%;background:var(--purple2);animation:pulse 1.2s ease-in-out infinite}
-.dot-pulse span:nth-child(2){animation-delay:.2s}
-.dot-pulse span:nth-child(3){animation-delay:.4s}
-@keyframes pulse{0%,80%,100%{transform:scale(.6);opacity:.6}40%{transform:scale(1);opacity:1}}
-
-/* ── FULL-SCREEN POPUP ── */
+/* ── FULL-SCREEN POPUPS ── */
 .popup-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;align-items:center;justify-content:center;padding:1rem}
 .popup-bg.open{display:flex}
-.popup{background:var(--bg);border-radius:var(--r2);padding:1.5rem;width:100%;max-width:340px;text-align:center}
+.popup{background:var(--bg);border-radius:var(--r2);padding:1.5rem;width:100%;max-width:340px;text-align:center;box-shadow: 0 10px 25px rgba(0,0,0,0.2)}
 .popup-icon{width:48px;height:48px;border-radius:var(--r2);display:flex;align-items:center;justify-content:center;margin:0 auto .875rem}
-.popup-icon i{font-size:24px}
-.popup-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:.5rem}
+.popup-icon .icon{width:24px;height:24px}
+.popup-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:.5rem}
 .popup-desc{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:1.125rem}
 .popup-btns{display:flex;gap:8px;justify-content:center}
 
-/* ── LOGIN SCREEN ── */
+/* ── AUTH SCREENS ── */
 .login-screen{display:none;position:fixed;inset:0;background:var(--bg3);z-index:400;align-items:center;justify-content:center;padding:1rem}
 .login-screen.open{display:flex}
-.login-card{background:var(--bg);border-radius:var(--r2);padding:1.75rem;width:100%;max-width:360px;box-shadow:0 8px 40px rgba(0,0,0,.1)}
+.login-card{background:var(--bg);border-radius:var(--r2);padding:1.75rem;width:100%;max-width:360px;box-shadow:0 8px 40px rgba(0,0,0,0.12)}
 
-/* ── SIGNUP SCREEN ── */
 .signup-screen{display:none;position:fixed;inset:0;background:var(--bg3);z-index:400;align-items:center;justify-content:center;padding:1rem}
 .signup-screen.open{display:flex}
-.signup-card{background:var(--bg);border-radius:var(--r2);padding:1.75rem;width:100%;max-width:360px;box-shadow:0 8px 40px rgba(0,0,0,.1)}
+.signup-card{background:var(--bg);border-radius:var(--r2);padding:1.75rem;width:100%;max-width:360px;box-shadow:0 8px 40px rgba(0,0,0,0.12)}
 
 /* ── TOAST ── */
-.toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:#26215C;color:#EEEDFE;padding:8px 18px;border-radius:20px;font-size:13px;z-index:500;white-space:nowrap;transition:opacity .3s;opacity:0;pointer-events:none}
+.toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:#26215C;color:#EEEDFE;padding:8px 18px;border-radius:20px;font-size:13px;z-index:500;white-space:nowrap;transition:opacity .3s;opacity:0;pointer-events:none;box-shadow: 0 4px 12px rgba(0,0,0,0.15)}
 .toast.show{opacity:1}
 
 /* ── OR DIVIDER ── */
@@ -262,14 +296,24 @@ body{font-family:var(--font);background:var(--bg3);display:flex;flex-direction:c
 <!-- TOPBAR -->
 <div class="topbar">
   <div class="topbar-logo">
-    <div class="logo-badge"><i class="ti ti-scan"></i></div>
+    <div class="logo-badge">
+      <img src="image_bfe14a.jpg" alt="Paperless Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+      <div class="logo-fallback">
+        <!-- Standalone Custom Vector Logo Fallback -->
+        <svg class="icon" viewBox="0 0 24 24" style="width: 18px; height: 18px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      </div>
+    </div>
     <div>
       <div class="logo-name">Paperless</div>
       <div class="logo-by">by Dev Nahin</div>
     </div>
   </div>
-  <button class="topbar-btn" onclick="switchPanel('scan')" title="Scan"><i class="ti ti-camera"></i></button>
-  <button class="topbar-btn" onclick="switchPanel('export')" title="Export"><i class="ti ti-download"></i></button>
+  <button class="topbar-btn" onclick="switchPanel('scan')" title="Scan">
+    <svg class="icon" viewBox="0 0 24 24"><path d="M5 7h1a2 2 0 0 0 2-2a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1a2 2 0 0 0 2 2h1a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3v-9a3 3 0 0 1 3-3z"/><circle cx="12" cy="13" r="3"/></svg>
+  </button>
+  <button class="topbar-btn" onclick="switchPanel('export')" title="Export">
+    <svg class="icon" viewBox="0 0 24 24"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M7 11l5 5 5-5M12 4v12"/></svg>
+  </button>
 </div>
 
 <!-- CONTENT -->
@@ -279,24 +323,36 @@ body{font-family:var(--font);background:var(--bg3);display:flex;flex-direction:c
   <div class="panel active" id="panel-dashboard">
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-label"><i class="ti ti-receipt-2"></i> Receipts</div>
+        <div class="stat-label">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Receipts
+        </div>
         <div class="stat-value" id="stat-count">0</div>
         <div class="stat-sub">This month</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label"><i class="ti ti-currency-dollar"></i> Total spent</div>
+        <div class="stat-label">
+          <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          Total spent
+        </div>
         <div class="stat-value" id="stat-total">$0.00</div>
         <div class="stat-sub">All categories</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label"><i class="ti ti-scan"></i> Scans left</div>
+        <div class="stat-label">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          Scans left
+        </div>
         <div class="stat-value" id="stat-left">10</div>
         <div class="stat-sub">Free tier</div>
         <div class="limit-track"><div class="limit-fill" id="limit-fill"></div></div>
         <div class="limit-text" id="limit-text">0 of 10 used</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label"><i class="ti ti-tag"></i> Top category</div>
+        <div class="stat-label">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+          Top category
+        </div>
         <div class="stat-value" style="font-size:14px;padding-top:4px"><span class="cat cat-other" id="stat-cat">N/A</span></div>
         <div class="stat-sub" id="stat-cat-amt">$0.00 this month</div>
       </div>
@@ -312,387 +368,444 @@ body{font-family:var(--font);background:var(--bg3);display:flex;flex-direction:c
     </div>
 
     <button class="btn primary full" onclick="switchPanel('scan')">
-      <i class="ti ti-camera"></i> Scan a new receipt
+      <svg class="icon" viewBox="0 0 24 24" style="width:16px;height:16px;margin-right:2px"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Scan a new receipt
     </button>
   </div>
 
   <!-- SCAN -->
   <div class="panel" id="panel-scan">
     <div class="scan-area" onclick="triggerScan()" role="button" tabindex="0">
-      <div class="scan-icon-wrap"><i class="ti ti-camera"></i></div>
-      <div style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:6px">Snap a receipt</div>
-      <div style="font-size:13px;color:var(--text2);margin-bottom:1.125rem">Take a photo or upload from your gallery</div>
+      <div class="scan-icon-wrap">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      </div>
+      <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px">Snap a receipt</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:1.125rem">Take a photo or upload from your gallery</div>
       <div style="display:flex;gap:8px;justify-content:center">
-        <button class="btn primary" onclick="event.stopPropagation();triggerScan()"><i class="ti ti-camera"></i> Camera</button>
-        <button class="btn" onclick="event.stopPropagation();triggerUpload()"><i class="ti ti-upload"></i> Upload</button>
+        <button class="btn primary" onclick="event.stopPropagation();triggerScan()">
+          <svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Camera
+          </button>
+          <button class="btn" onclick="event.stopPropagation();triggerUpload()">
+            <svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg> Upload
+          </button>
+        </div>
+      </div>
+
+      <div class="or-div">or try a sample</div>
+
+      <div class="sample-grid">
+        <button class="sample-card" onclick="runDemo('restaurant')">
+          <div class="sample-icon" style="background:var(--green-light)">
+            <svg class="icon" viewBox="0 0 24 24" style="color:var(--green)"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <div class="sample-label">Restaurant</div>
+          <div class="sample-sub">Dine-in</div>
+        </button>
+        <button class="sample-card" onclick="runDemo('hotel')">
+          <div class="sample-icon" style="background:var(--blue-light)">
+            <svg class="icon" viewBox="0 0 24 24" style="color:var(--blue)"><rect x="3" y="2" width="18" height="20" rx="2" ry="2"/><line x1="9" y1="22" x2="9" y2="16"/><line x1="15" y1="22" x2="15" y2="16"/><line x1="12" y1="16" x2="12" y2="22"/><path d="M12 2v4"/><path d="M9 10h.01"/><path d="M15 10h.01"/><path d="M9 13h.01"/><path d="M15 13h.01"/></svg>
+          </div>
+          <div class="sample-label">Hotel</div>
+          <div class="sample-sub">Business stay</div>
+        </button>
+        <button class="sample-card" onclick="runDemo('software')">
+          <div class="sample-icon" style="background:var(--purple-light)">
+            <svg class="icon" viewBox="0 0 24 24" style="color:var(--purple)"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <div class="sample-label">Software</div>
+          <div class="sample-sub">SaaS invoice</div>
+        </button>
       </div>
     </div>
 
-    <div class="or-div">or try a sample</div>
+    <!-- RECEIPTS -->
+    <div class="panel" id="panel-receipts">
+      <div class="search-wrap">
+        <div class="search-box">
+          <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="Search receipts…" oninput="filterReceipts(this.value)">
+        </div>
+      </div>
+      <div class="sec-header">
+        <div class="sec-title" id="receipts-count">0 receipts</div>
+      </div>
+      <div class="receipt-list" id="full-receipt-list">
+        <!-- Populated dynamically -->
+      </div>
+    </div>
 
-    <div class="sample-grid">
-      <button class="sample-card" onclick="runDemo('restaurant')">
-        <div class="sample-icon" style="background:var(--green-light)"><i class="ti ti-tools-kitchen-2" style="color:var(--green)"></i></div>
-        <div class="sample-label">Restaurant</div>
-        <div class="sample-sub">Dine-in</div>
+    <!-- EXPORT -->
+    <div class="panel" id="panel-export">
+      <div style="font-size:12px;color:var(--text2);margin-bottom:1rem;line-height:1.6">Export your receipts. Excel, PDF and Email require Firebase backend.</div>
+      <div class="export-grid">
+        <div class="export-card selected" id="fmt-csv" onclick="selectFmt('csv')">
+          <div class="export-icon" style="background:var(--green-light)">
+            <svg class="icon" viewBox="0 0 24 24" style="color:var(--green)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          </div>
+          <div class="export-title">CSV <span style="background:var(--green-light);color:var(--green);font-size:9px;padding:1px 5px;border-radius:20px">✅ Works</span></div>
+          <div class="export-sub">Excel, Sheets, QuickBooks</div>
+        </div>
+        <div class="export-card disabled" onclick="showComingSoon('Excel export')">
+          <div class="export-icon" style="background:var(--bg2)">
+            <svg class="icon" viewBox="0 0 24 24" style="color:var(--text3)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <div class="export-title" style="color:var(--text3)">Excel <span style="background:var(--bg2);color:var(--text3);font-size:9px;padding:1px 5px;border-radius:20px">Soon</span></div>
+          <div class="export-sub" style="color:var(--text3)">Needs Firebase backend</div>
+        </div>
+        <div class="export-card disabled" onclick="showComingSoon('PDF report')">
+          <div class="export-icon" style="background:var(--bg2)">
+            <svg class="icon" viewBox="0 0 24 24" style="color:var(--text3)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
+          </div>
+          <div class="export-title" style="color:var(--text3)">PDF <span style="background:var(--bg2);color:var(--text3);font-size:9px;padding:1px 5px;border-radius:20px">Soon</span></div>
+          <div class="export-sub" style="color:var(--text3)">Needs Firebase backend</div>
+        </div>
+        <div class="export-card disabled" onclick="showComingSoon('Email export')">
+          <div class="export-icon" style="background:var(--bg2)">
+            <svg class="icon" viewBox="0 0 24 24" style="color:var(--text3)"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <div class="export-title" style="color:var(--text3)">Email <span style="background:var(--bg2);color:var(--text3);font-size:9px;padding:1px 5px;border-radius:20px">Soon</span></div>
+          <div class="export-sub" style="color:var(--text3)">Needs Firebase backend</div>
+        </div>
+      </div>
+      <button class="btn success full" onclick="runExport()">
+        <svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px;margin-right:2px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> Export receipts as CSV
       </button>
-      <button class="sample-card" onclick="runDemo('hotel')">
-        <div class="sample-icon" style="background:var(--blue-light)"><i class="ti ti-building" style="color:var(--blue)"></i></div>
-        <div class="sample-label">Hotel</div>
-        <div class="sample-sub">Business stay</div>
+      <div class="export-ok" id="export-result">
+        <svg class="icon" viewBox="0 0 24 24" style="color:var(--green);width:16px;height:16px"><polyline points="20 6 9 17 4 12"/></svg><span id="export-msg"></span>
+      </div>
+    </div>
+
+    <!-- MORE (Settings + About) -->
+    <div class="panel" id="panel-more">
+
+      <!-- Quick actions -->
+      <div class="receipt-list" style="margin-bottom:1rem">
+        <button class="receipt-row" onclick="switchPanel('pipeline')" style="width:100%;text-align:left;border:none;cursor:pointer">
+          <div class="receipt-icon" style="background:var(--purple-light)"><svg class="icon" style="color:var(--purple)" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></div>
+          <div class="receipt-info"><div class="receipt-merchant">AI pipeline</div><div class="receipt-meta">How extraction works</div></div>
+          <svg class="icon" viewBox="0 0 24 24" style="color:var(--text3)"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <button class="receipt-row" onclick="switchPanel('about')" style="width:100%;text-align:left;border:none;cursor:pointer">
+          <div class="receipt-icon" style="background:var(--purple-light)"><svg class="icon" style="color:var(--purple)" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></div>
+          <div class="receipt-info"><div class="receipt-merchant">About & developer</div><div class="receipt-meta">Dev Nahin · v1.0.0</div></div>
+          <svg class="icon" viewBox="0 0 24 24" style="color:var(--text3)"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+
+      <!-- Settings -->
+      <div class="settings-group">
+        <div class="sg-title">Notifications</div>
+        <div class="setting-row">
+          <div class="setting-info"><div class="setting-label">Weekly summary email</div><div class="setting-desc">Expense digest every Monday</div></div>
+          <button class="toggle on" id="set-notif-weekly" onclick="toggleSetting('notif-weekly')"></button>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info"><div class="setting-label">Scan limit warning</div><div class="setting-desc">Alert at 80% of monthly scans</div></div>
+          <button class="toggle on" id="set-notif-limit" onclick="toggleSetting('notif-limit')"></button>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <div class="sg-title">AI & Extraction</div>
+        <div class="setting-row">
+          <div class="setting-info"><div class="setting-label">Auto-categorise</div><div class="setting-desc">AI assigns category on every scan</div></div>
+          <button class="toggle on" id="set-ai-cat" onclick="toggleSetting('ai-cat')"></button>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info"><div class="setting-label">Save image to library</div><div class="setting-desc">Keep receipt photo in storage</div></div>
+          <button class="toggle on" id="set-save-img" onclick="toggleSetting('save-img')"></button>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <div class="sg-title">Account</div>
+        <div class="setting-row">
+          <div class="setting-info"><div class="setting-label">Currency</div></div>
+          <select class="sel-input" id="set-currency" onchange="saveSelectionSetting('currency', this.value)">
+            <option value="USD">USD ($)</option><option value="BDT">BDT (৳)</option><option value="EUR">EUR (€)</option><option value="GBP">GBP (£)</option>
+          </select>
+        </div>
+        <div class="setting-row">
+          <div class="setting-info"><div class="setting-label">Default export</div></div>
+          <select class="sel-input" id="set-export" onchange="saveSelectionSetting('export', this.value)">
+            <option value="CSV">CSV</option><option value="Excel">Excel</option><option value="PDF">PDF</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn primary" onclick="showToast('Settings saved ✓')">
+          <svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px;margin-right:2px"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg> Save
+        </button>
+        <button class="btn" onclick="confirmLogout()">
+          <svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px;margin-right:2px"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg> Log out
+        </button>
+        <button class="btn danger" onclick="confirmDeleteAccount()">
+          <svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px;margin-right:2px"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Delete account
+        </button>
+      </div>
+    </div>
+
+    <!-- AI PIPELINE -->
+    <div class="panel" id="panel-pipeline">
+      <button class="btn" style="margin-bottom:1rem" onclick="switchPanel('more')">
+        <svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px;margin-right:2px"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Back
       </button>
-      <button class="sample-card" onclick="runDemo('software')">
-        <div class="sample-icon" style="background:var(--purple-light)"><i class="ti ti-device-laptop" style="color:var(--purple)"></i></div>
-        <div class="sample-label">Software</div>
-        <div class="sample-sub">SaaS invoice</div>
+      <div class="step-flow">
+        <div class="step-node done"><svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>Upload</div>
+        <div class="step-node done"><svg class="icon" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg>Firebase</div>
+        <div class="step-node active"><svg class="icon" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>AI call</div>
+        <div class="step-node"><svg class="icon" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>Parse</div>
+        <div class="step-node"><svg class="icon" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8"/></svg>Save</div>
+      </div>
+      <div class="pipe-card">
+        <div class="pipe-head"><div class="pipe-icon" style="background:var(--purple-light)"><svg class="icon" style="color:var(--purple)" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg></div><div class="pipe-title">Step 1 — Upload to Firebase Storage</div></div>
+        <div class="pipe-desc">Camera captures the receipt → uploaded to <code>receipts/{userId}/{timestamp}.jpg</code> → Cloud Function triggers automatically.</div>
+      </div>
+      <div class="pipe-card">
+        <div class="pipe-head"><div class="pipe-icon" style="background:var(--purple-light)"><svg class="icon" style="color:var(--purple)" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/></svg></div><div class="pipe-title">Step 2 — GPT-4o mini AI call</div></div>
+        <div class="pipe-desc">Signed URL sent to AI with secret extraction prompt. Reads skewed, crumpled, or low-light photos.</div>
+        <div class="json-block"><span class="jk">"system"</span>: <span class="js">"Extract receipt data. Return ONLY JSON."</span></div>
+      </div>
+      <div class="pipe-card">
+        <div class="pipe-head"><div class="pipe-icon" style="background:var(--green-light)"><svg class="icon" style="color:var(--green)" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div><div class="pipe-title">Step 3 — Parsed JSON → Firestore</div></div>
+        <div class="pipe-desc">AI returns clean object → validated → written to <code>receipts/{receiptId}</code>.</div>
+        <div class="json-block">{ <span class="jk">"merchant"</span>: <span class="js">"Shake Shack"</span>, <span class="jk">"total"</span>: <span class="jn">42.80</span>, <span class="jk">"category"</span>: <span class="js">"Food"</span> }</div>
+      </div>
+      <div class="pipe-card">
+        <div class="pipe-head"><div class="pipe-icon" style="background:#FAEEDA"><svg class="icon" style="color:#633806" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg></div><div class="pipe-title">Step 4 — Firestore schema</div></div>
+        <div class="pipe-desc">Each receipt saved under <code>receipts/{receiptId}</code>. User doc tracks <code>scanCount</code> for free-tier enforcement.</div>
+        <div class="json-block"><span class="jk">users/{userId}</span>: { plan, scanCount, email }<br><span class="jk">receipts/{id}</span>: { userId, imageUrl, merchantName, amount, date, tax, category, createdAt }</div>
+      </div>
+    </div>
+
+    <!-- ABOUT -->
+    <div class="panel" id="panel-about">
+      <button class="btn" style="margin-bottom:1rem" onclick="switchPanel('more')">
+        <svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px;margin-right:2px"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Back
       </button>
-    </div>
-  </div>
-
-  <!-- RECEIPTS -->
-  <div class="panel" id="panel-receipts">
-    <div class="search-wrap">
-      <div class="search-box">
-        <i class="ti ti-search"></i>
-        <input type="text" placeholder="Search receipts…" oninput="filterReceipts(this.value)">
-      </div>
-    </div>
-    <div class="sec-header">
-      <div class="sec-title" id="receipts-count">0 receipts</div>
-    </div>
-    <div class="receipt-list" id="full-receipt-list">
-      <!-- Populated dynamically -->
-    </div>
-  </div>
-
-  <!-- EXPORT -->
-  <div class="panel" id="panel-export">
-    <div style="font-size:13px;color:var(--text2);margin-bottom:1rem;line-height:1.6">Export your receipts. Excel, PDF and Email require Firebase backend.</div>
-    <div class="export-grid">
-      <div class="export-card selected" id="fmt-csv" onclick="selectFmt('csv')">
-        <div class="export-icon" style="background:var(--green-light)"><i class="ti ti-file-spreadsheet" style="font-size:20px;color:var(--green)"></i></div>
-        <div class="export-title">CSV <span style="background:var(--green-light);color:var(--green);font-size:9px;padding:1px 5px;border-radius:20px">✅ Works</span></div>
-        <div class="export-sub">Excel, Sheets, QuickBooks</div>
-      </div>
-      <div class="export-card disabled" onclick="showComingSoon('Excel export')">
-        <div class="export-icon" style="background:var(--bg2)"><i class="ti ti-file-excel" style="font-size:20px;color:var(--text3)"></i></div>
-        <div class="export-title" style="color:var(--text3)">Excel <span style="background:var(--bg2);color:var(--text3);font-size:9px;padding:1px 5px;border-radius:20px">Soon</span></div>
-        <div class="export-sub" style="color:var(--text3)">Needs Firebase backend</div>
-      </div>
-      <div class="export-card disabled" onclick="showComingSoon('PDF report')">
-        <div class="export-icon" style="background:var(--bg2)"><i class="ti ti-file-text" style="font-size:20px;color:var(--text3)"></i></div>
-        <div class="export-title" style="color:var(--text3)">PDF <span style="background:var(--bg2);color:var(--text3);font-size:9px;padding:1px 5px;border-radius:20px">Soon</span></div>
-        <div class="export-sub" style="color:var(--text3)">Needs Firebase backend</div>
-      </div>
-      <div class="export-card disabled" onclick="showComingSoon('Email export')">
-        <div class="export-icon" style="background:var(--bg2)"><i class="ti ti-mail" style="font-size:20px;color:var(--text3)"></i></div>
-        <div class="export-title" style="color:var(--text3)">Email <span style="background:var(--bg2);color:var(--text3);font-size:9px;padding:1px 5px;border-radius:20px">Soon</span></div>
-        <div class="export-sub" style="color:var(--text3)">Needs Firebase backend</div>
-      </div>
-    </div>
-    <button class="btn success full" onclick="runExport()"><i class="ti ti-download"></i> Export receipts as CSV</button>
-    <div class="export-ok" id="export-result">
-      <i class="ti ti-circle-check"></i><span id="export-msg"></span>
-    </div>
-  </div>
-
-  <!-- MORE (Settings + About) -->
-  <div class="panel" id="panel-more">
-
-    <!-- Quick actions -->
-    <div class="receipt-list" style="margin-bottom:1rem">
-      <button class="receipt-row" onclick="switchPanel('pipeline')" style="width:100%;text-align:left;border:none;cursor:pointer">
-        <div class="receipt-icon" style="background:var(--purple-light)"><i class="ti ti-cpu" style="color:var(--purple)"></i></div>
-        <div class="receipt-info"><div class="receipt-merchant">AI pipeline</div><div class="receipt-meta">How extraction works</div></div>
-        <i class="ti ti-chevron-right" style="color:var(--text3)"></i>
-      </button>
-      <button class="receipt-row" onclick="switchPanel('about')" style="width:100%;text-align:left;border:none;cursor:pointer">
-        <div class="receipt-icon" style="background:var(--purple-light)"><i class="ti ti-info-circle" style="color:var(--purple)"></i></div>
-        <div class="receipt-info"><div class="receipt-merchant">About & developer</div><div class="receipt-meta">Dev Nahin · v1.0.0</div></div>
-        <i class="ti ti-chevron-right" style="color:var(--text3)"></i>
-      </button>
-    </div>
-
-    <!-- Settings -->
-    <div class="settings-group">
-      <div class="sg-title">Notifications</div>
-      <div class="setting-row">
-        <div class="setting-info"><div class="setting-label">Weekly summary email</div><div class="setting-desc">Expense digest every Monday</div></div>
-        <button class="toggle on" id="set-notif-weekly" onclick="toggleSetting('notif-weekly')"></button>
-      </div>
-      <div class="setting-row">
-        <div class="setting-info"><div class="setting-label">Scan limit warning</div><div class="setting-desc">Alert at 80% of monthly scans</div></div>
-        <button class="toggle on" id="set-notif-limit" onclick="toggleSetting('notif-limit')"></button>
-      </div>
-    </div>
-
-    <div class="settings-group">
-      <div class="sg-title">AI & Extraction</div>
-      <div class="setting-row">
-        <div class="setting-info"><div class="setting-label">Auto-categorise</div><div class="setting-desc">AI assigns category on every scan</div></div>
-        <button class="toggle on" id="set-ai-cat" onclick="toggleSetting('ai-cat')"></button>
-      </div>
-      <div class="setting-row">
-        <div class="setting-info"><div class="setting-label">Save image to library</div><div class="setting-desc">Keep receipt photo in storage</div></div>
-        <button class="toggle on" id="set-save-img" onclick="toggleSetting('save-img')"></button>
-      </div>
-    </div>
-
-    <div class="settings-group">
-      <div class="sg-title">Account</div>
-      <div class="setting-row">
-        <div class="setting-info"><div class="setting-label">Currency</div></div>
-        <select class="sel-input" id="set-currency" onchange="saveSelectionSetting('currency', this.value)">
-          <option value="USD">USD ($)</option><option value="BDT">BDT (৳)</option><option value="EUR">EUR (€)</option><option value="GBP">GBP (£)</option>
-        </select>
-      </div>
-      <div class="setting-row">
-        <div class="setting-info"><div class="setting-label">Default export</div></div>
-        <select class="sel-input" id="set-export" onchange="saveSelectionSetting('export', this.value)">
-          <option value="CSV">CSV</option><option value="Excel">Excel</option><option value="PDF">PDF</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="btn-row">
-      <button class="btn primary" onclick="showToast('Settings saved ✓')"><i class="ti ti-device-floppy"></i> Save</button>
-      <button class="btn" onclick="confirmLogout()"><i class="ti ti-logout"></i> Log out</button>
-      <button class="btn danger" onclick="confirmDeleteAccount()"><i class="ti ti-trash"></i> Delete account</button>
-    </div>
-  </div>
-
-  <!-- AI PIPELINE -->
-  <div class="panel" id="panel-pipeline">
-    <button class="btn" style="margin-bottom:1rem" onclick="switchPanel('more')"><i class="ti ti-arrow-left"></i> Back</button>
-    <div class="step-flow">
-      <div class="step-node done"><i class="ti ti-upload"></i>Upload</div>
-      <div class="step-node done"><i class="ti ti-database"></i>Firebase</div>
-      <div class="step-node active"><i class="ti ti-cpu"></i>AI call</div>
-      <div class="step-node"><i class="ti ti-code"></i>Parse</div>
-      <div class="step-node"><i class="ti ti-device-floppy"></i>Save</div>
-    </div>
-    <div class="pipe-card">
-      <div class="pipe-head"><div class="pipe-icon" style="background:var(--purple-light)"><i class="ti ti-upload" style="font-size:14px;color:var(--purple)"></i></div><div class="pipe-title">Step 1 — Upload to Firebase Storage</div></div>
-      <div class="pipe-desc">Camera captures the receipt → uploaded to <code>receipts/{userId}/{timestamp}.jpg</code> → Cloud Function triggers automatically.</div>
-    </div>
-    <div class="pipe-card">
-      <div class="pipe-head"><div class="pipe-icon" style="background:var(--purple-light)"><i class="ti ti-cpu" style="font-size:14px;color:var(--purple)"></i></div><div class="pipe-title">Step 2 — GPT-4o mini AI call</div></div>
-      <div class="pipe-desc">Signed URL sent to AI with secret extraction prompt. Reads skewed, crumpled, or low-light photos.</div>
-      <div class="json-block"><span class="jk">"system"</span>: <span class="js">"Extract receipt data. Return ONLY JSON."</span></div>
-    </div>
-    <div class="pipe-card">
-      <div class="pipe-head"><div class="pipe-icon" style="background:var(--green-light)"><i class="ti ti-code" style="font-size:14px;color:var(--green)"></i></div><div class="pipe-title">Step 3 — Parsed JSON → Firestore</div></div>
-      <div class="pipe-desc">AI returns clean object → validated → written to <code>receipts/{receiptId}</code>.</div>
-      <div class="json-block">{ <span class="jk">"merchant"</span>: <span class="js">"Shake Shack"</span>, <span class="jk">"total"</span>: <span class="jn">42.80</span>, <span class="jk">"category"</span>: <span class="js">"Food"</span> }</div>
-    </div>
-    <div class="pipe-card">
-      <div class="pipe-head"><div class="pipe-icon" style="background:#FAEEDA"><i class="ti ti-database" style="font-size:14px;color:#633806"></i></div><div class="pipe-title">Step 4 — Firestore schema</div></div>
-      <div class="pipe-desc">Each receipt saved under <code>receipts/{receiptId}</code>. User doc tracks <code>scanCount</code> for free-tier enforcement.</div>
-      <div class="json-block"><span class="jk">users/{userId}</span>: { plan, scanCount, email }<br><span class="jk">receipts/{id}</span>: { userId, imageUrl, merchantName, amount, date, tax, category, createdAt }</div>
-    </div>
-  </div>
-
-  <!-- ABOUT -->
-  <div class="panel" id="panel-about">
-    <button class="btn" style="margin-bottom:1rem" onclick="switchPanel('more')"><i class="ti ti-arrow-left"></i> Back</button>
-    <div class="about-hero">
-      <div class="dev-card">
-        <div class="dev-pic">DN</div>
-        <div>
-          <div class="dev-name">Dev Nahin</div>
-          <div class="dev-role">Founder & Developer · Paperless</div>
-          <div class="dev-tags">
-            <span class="dev-tag">Full-stack</span>
-            <span class="dev-tag">AI/ML</span>
-            <span class="dev-tag">Micro-SaaS</span>
+      <div class="about-hero">
+        <div class="dev-card">
+          <div class="dev-pic">DN</div>
+          <div>
+            <div class="dev-name">Dev Nahin</div>
+            <div class="dev-role">Founder & Developer · Paperless</div>
+            <div class="dev-tags">
+              <span class="dev-tag">Full-stack</span>
+              <span class="dev-tag">AI/ML</span>
+              <span class="dev-tag">Micro-SaaS</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    <div style="margin-bottom:1rem">
-      <div class="about-sec-title">About</div>
-      <p style="font-size:13px;color:var(--text2);line-height:1.7">Dev Nahin built Paperless to solve a real pain point — freelancers spending hours manually entering receipts at tax time. AI turns any photo into a clean expense record in under 3 seconds.</p>
-    </div>
-    <div class="about-sec-title">Tech stack</div>
-    <div class="tech-grid">
-      <div class="tech-chip"><div class="tech-name">Flutter</div><div class="tech-sub">Mobile UI</div></div>
-      <div class="tech-chip"><div class="tech-name">Firebase</div><div class="tech-sub">Auth + DB</div></div>
-      <div class="tech-chip"><div class="tech-name">GPT-4o mini</div><div class="tech-sub">AI OCR</div></div>
-      <div class="tech-chip"><div class="tech-name">Cloud Fns</div><div class="tech-sub">Pipeline</div></div>
-      <div class="tech-chip"><div class="tech-name">RevenueCat</div><div class="tech-sub">Billing</div></div>
-      <div class="tech-chip"><div class="tech-name">Stripe</div><div class="tech-sub">Payments</div></div>
-    </div>
-    <div class="about-sec-title">Product info</div>
-    <div class="info-list">
-      <div class="info-row"><div class="info-icon" style="background:var(--purple-light)"><i class="ti ti-apps" style="color:var(--purple)"></i></div><div><div class="info-label">App name</div><div class="info-value">Paperless</div></div></div>
-      <div class="info-row"><div class="info-icon" style="background:var(--green-light)"><i class="ti ti-tag" style="color:var(--green)"></i></div><div><div class="info-label">Version</div><div class="info-value">1.0.0 MVP</div></div></div>
-      <div class="info-row"><div class="info-icon" style="background:#FAEEDA"><i class="ti ti-calendar" style="color:#633806"></i></div><div><div class="info-label">Released</div><div class="info-value">June 2026</div></div></div>
-      <div class="info-row"><div class="info-icon" style="background:var(--blue-light)"><i class="ti ti-world" style="color:var(--blue)"></i></div><div><div class="info-label">Platforms</div><div class="info-value">iOS · Android · Web</div></div></div>
-      <div class="info-row"><div class="info-icon" style="background:var(--purple-light)"><i class="ti ti-user" style="color:var(--purple)"></i></div><div><div class="info-label">Built by</div><div class="info-value" style="color:var(--purple)">Dev Nahin</div></div></div>
-    </div>
-    <div class="about-sec-title">Changelog</div>
-    <div class="changelog-list">
-      <div class="cl-item"><div class="cl-dot" style="background:var(--purple)"></div><div><div class="cl-ver">v1.0.0 · Jun 2026</div><div class="cl-desc">MVP launch — scan, extract, dashboard, CSV export</div></div></div>
-      <div class="cl-item"><div class="cl-dot" style="background:var(--green)"></div><div><div class="cl-ver">v0.9.0 · May 2026</div><div class="cl-desc">AI pipeline stable, Firestore schema, RevenueCat</div></div></div>
-      <div class="cl-item"><div class="cl-dot" style="background:#633806"></div><div><div class="cl-ver">v0.5.0 · Apr 2026</div><div class="cl-desc">Camera UI and Firebase Storage working</div></div></div>
-    </div>
-    <div class="about-sec-title">Contact</div>
-    <div class="contact-row">
-      <button class="btn primary" onclick="showToast('Opening devnahin.com…')"><i class="ti ti-world"></i> devnahin.com</button>
-      <button class="btn" onclick="showToast('Opening GitHub…')"><i class="ti ti-brand-github"></i> GitHub</button>
-      <button class="btn" onclick="showToast('Opening Twitter…')"><i class="ti ti-brand-x"></i> @devnahin</button>
-    </div>
-  </div>
-
-</div><!-- /content-area -->
-
-<!-- BOTTOM NAV -->
-<nav class="bottom-nav">
-  <button class="bn-item active" data-panel="dashboard" onclick="switchPanel('dashboard',this)">
-    <i class="ti ti-layout-dashboard"></i>Home
-  </button>
-  <button class="bn-item" data-panel="scan" onclick="switchPanel('scan',this)">
-    <i class="ti ti-camera"></i>Scan
-  </button>
-  <button class="bn-item" data-panel="receipts" onclick="switchPanel('receipts',this)">
-    <i class="ti ti-receipt"></i>Receipts
-  </button>
-  <button class="bn-item" data-panel="export" onclick="switchPanel('export',this)">
-    <i class="ti ti-download"></i>Export
-  </button>
-  <button class="bn-item" data-panel="more" onclick="switchPanel('more',this)">
-    <i class="ti ti-dots"></i>More
-  </button>
-</nav>
-
-<!-- EDIT MODAL -->
-<div class="modal-bg" id="edit-modal" onclick="if(event.target===this)closeModal()">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title">Edit receipt</div>
-    <div class="field"><label>Merchant name</label><input id="f-merchant" type="text"></div>
-    <div class="field"><label>Date</label><input id="f-date" type="date"></div>
-    <div class="two-col">
-      <div class="field"><label>Total</label><input id="f-total" type="number" step="0.01"></div>
-      <div class="field"><label>Tax</label><input id="f-tax" type="number" step="0.01"></div>
-    </div>
-    <div class="field"><label>Category</label>
-      <select id="f-cat"><option>Food</option><option>Travel</option><option>Software</option><option>Office</option><option>Other</option></select>
-    </div>
-    <div class="field"><label>Notes</label><input id="f-notes" type="text" placeholder="e.g. Client dinner…"></div>
-    <div class="modal-btns">
-      <button class="btn danger" onclick="deleteReceiptEntry()"><i class="ti ti-trash"></i></button>
-      <button class="btn" onclick="closeModal()">Cancel</button>
-      <button class="btn primary" onclick="saveEdit()"><i class="ti ti-device-floppy"></i> Save</button>
-    </div>
-  </div>
-</div>
-
-<!-- SCAN MODAL -->
-<div class="modal-bg" id="scan-modal" onclick="if(event.target===this)closeScanModal()">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div id="scan-modal-body"></div>
-  </div>
-</div>
-
-<!-- COMING SOON POPUP -->
-<div class="popup-bg" id="cs-popup">
-  <div class="popup">
-    <div class="popup-icon" style="background:var(--purple-light)"><i class="ti ti-clock" style="color:var(--purple)"></i></div>
-    <div class="popup-title" id="cs-title">Coming soon</div>
-    <div class="popup-desc" id="cs-desc">This feature requires the Firebase backend. Available in the full launch version.</div>
-    <div class="popup-btns">
-      <button class="btn" onclick="document.getElementById('cs-popup').classList.remove('open')">Got it</button>
-      <button class="btn primary" onclick="document.getElementById('cs-popup').classList.remove('open');runExport()">Use CSV</button>
-    </div>
-  </div>
-</div>
-
-<!-- LOGOUT POPUP -->
-<div class="popup-bg" id="logout-popup">
-  <div class="popup">
-    <div class="popup-icon" style="background:var(--purple-light)"><i class="ti ti-logout" style="color:var(--purple)"></i></div>
-    <div class="popup-title">Log out?</div>
-    <div class="popup-desc">You will return to the login screen. Your receipts will be here when you log back in.</div>
-    <div class="popup-btns">
-      <button class="btn" onclick="document.getElementById('logout-popup').classList.remove('open')">Cancel</button>
-      <button class="btn primary" onclick="runLogout()">Log out</button>
-    </div>
-  </div>
-</div>
-
-<!-- DELETE ACCOUNT POPUP -->
-<div class="popup-bg" id="delete-popup">
-  <div class="popup">
-    <div class="popup-icon" style="background:#fef2f2"><i class="ti ti-trash" style="color:#b91c1c"></i></div>
-    <div class="popup-title">Delete account?</div>
-    <div class="popup-desc" id="delete-desc">This permanently deletes your account and all receipts. This cannot be undone.</div>
-    <div class="popup-btns">
-      <button class="btn" onclick="document.getElementById('delete-popup').classList.remove('open')">Cancel</button>
-      <button class="btn danger" onclick="runDeleteEverything()">Delete everything</button>
-    </div>
-  </div>
-</div>
-
-<!-- LOGIN SCREEN -->
-<div class="login-screen" id="login-screen">
-  <div class="login-card">
-    <div style="text-align:center;margin-bottom:1.5rem">
-      <div style="width:52px;height:52px;background:var(--purple);border-radius:13px;display:flex;align-items:center;justify-content:center;margin:0 auto .875rem">
-        <i class="ti ti-scan" style="font-size:26px;color:var(--purple-light)"></i>
+      <div style="margin-bottom:1rem">
+        <div class="about-sec-title">About</div>
+        <p style="font-size:12px;color:var(--text2);line-height:1.7">Dev Nahin built Paperless to solve a real pain point — freelancers spending hours manually entering receipts at tax time. AI turns any photo into a clean expense record in under 3 seconds.</p>
       </div>
-      <div style="font-size:20px;font-weight:600;color:var(--text)">Paperless</div>
-      <div style="font-size:12px;color:var(--text3);margin-top:3px">by Dev Nahin</div>
-    </div>
-    <div class="field"><label>Email</label><input id="login-email" type="email" placeholder="you@example.com"></div>
-    <div class="field"><label>Password</label><input id="login-pw" type="password" placeholder="••••••••"></div>
-    <div id="auth-error" style="display:none;background:#fef2f2;border-radius:8px;padding:.625rem .875rem;margin-bottom:.75rem;font-size:12px;color:#b91c1c"></div>
-    <div id="auth-loading" style="display:none;text-align:center;padding:.75rem;font-size:13px;color:var(--text2)"><div class="dot-pulse" style="justify-content:center;margin-bottom:.4rem"><span></span><span></span><span></span></div>Signing you in...</div>
-    <div id="auth-form-wrap">
-      <button class="btn primary full" style="margin-bottom:.625rem" onclick="runEmailLogin()">Log in</button>
-      <button class="btn full" onclick="runGoogleLogin()">
-        <svg width="15" height="15" viewBox="0 0 48 48" style="margin-right:4px;flex-shrink:0"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-        Continue with Google
-      </button>
-    </div>
-    <div style="text-align:center;margin-top:.875rem;font-size:12px;color:var(--text3)">
-      No account? <span onclick="showSignup()" style="color:var(--purple);cursor:pointer;font-weight:500">Sign up free</span>
-    </div>
-  </div>
-</div>
-
-<!-- SIGNUP SCREEN -->
-<div class="signup-screen" id="signup-screen">
-  <div class="signup-card">
-    <div style="text-align:center;margin-bottom:1.5rem">
-      <div style="width:52px;height:52px;background:var(--purple);border-radius:13px;display:flex;align-items:center;justify-content:center;margin:0 auto .875rem">
-        <i class="ti ti-scan" style="font-size:26px;color:var(--purple-light)"></i>
+      <div class="about-sec-title">Tech stack</div>
+      <div class="tech-grid">
+        <div class="tech-chip"><div class="tech-name">Flutter</div><div class="tech-sub">Mobile UI</div></div>
+        <div class="tech-chip"><div class="tech-name">Firebase</div><div class="tech-sub">Auth + DB</div></div>
+        <div class="tech-chip"><div class="tech-name">GPT-4o mini</div><div class="tech-sub">AI OCR</div></div>
+        <div class="tech-chip"><div class="tech-name">Cloud Fns</div><div class="tech-sub">Pipeline</div></div>
+        <div class="tech-chip"><div class="tech-name">RevenueCat</div><div class="tech-sub">Billing</div></div>
+        <div class="tech-chip"><div class="tech-name">Stripe</div><div class="tech-sub">Payments</div></div>
       </div>
-      <div style="font-size:20px;font-weight:600;color:var(--text)">Create Account</div>
-      <div style="font-size:12px;color:var(--text3);margin-top:3px">Join Paperless by Dev Nahin</div>
+      <div class="about-sec-title">Product info</div>
+      <div class="info-list">
+        <div class="info-row"><div class="info-icon" style="background:var(--purple-light)"><svg class="icon" style="color:var(--purple)" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div><div><div class="info-label">App name</div><div class="info-value">Paperless</div></div></div>
+        <div class="info-row"><div class="info-icon" style="background:var(--green-light)"><svg class="icon" style="color:var(--green)" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div><div><div class="info-label">Version</div><div class="info-value">1.0.0 MVP</div></div></div>
+        <div class="info-row"><div class="info-icon" style="background:#FAEEDA"><svg class="icon" style="color:#633806" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div><div class="info-label">Released</div><div class="info-value">June 2026</div></div></div>
+        <div class="info-row"><div class="info-icon" style="background:var(--blue-light)"><svg class="icon" style="color:var(--blue)" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div><div><div class="info-label">Platforms</div><div class="info-value">iOS · Android · Web</div></div></div>
+        <div class="info-row"><div class="info-icon" style="background:var(--purple-light)"><svg class="icon" style="color:var(--purple)" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div><div class="info-label">Built by</div><div class="info-value" style="color:var(--purple)">Dev Nahin</div></div></div>
+      </div>
+      <div class="about-sec-title">Changelog</div>
+      <div class="changelog-list">
+        <div class="cl-item"><div class="cl-dot" style="background:var(--purple)"></div><div><div class="cl-ver">v1.0.0 · Jun 2026</div><div class="cl-desc">MVP launch — scan, extract, dashboard, CSV export</div></div></div>
+        <div class="cl-item"><div class="cl-dot" style="background:var(--green)"></div><div><div class="cl-ver">v0.9.0 · May 2026</div><div class="cl-desc">AI pipeline stable, Firestore schema, RevenueCat</div></div></div>
+        <div class="cl-item"><div class="cl-dot" style="background:#633806"></div><div><div class="cl-ver">v0.5.0 · Apr 2026</div><div class="cl-desc">Camera UI and Firebase Storage working</div></div></div>
+      </div>
+      <div class="about-sec-title">Contact</div>
+      <div class="contact-row">
+        <button class="btn primary" onclick="showToast('Opening devnahin.com…')">
+          <svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px;margin-right:2px"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> devnahin.com
+        </button>
+        <button class="btn" onclick="showToast('Opening GitHub…')">GitHub</button>
+        <button class="btn" onclick="showToast('Opening Twitter…')">@devnahin</button>
+      </div>
     </div>
-    <div class="field"><label>Full Name</label><input id="signup-name" type="text" placeholder="John Doe"></div>
-    <div class="field"><label>Email Address</label><input id="signup-email" type="email" placeholder="you@example.com"></div>
-    <div class="field"><label>Password</label><input id="signup-pw" type="password" placeholder="••••••••"></div>
-    <div class="field"><label>Confirm Password</label><input id="signup-pw-confirm" type="password" placeholder="••••••••"></div>
-    <div id="signup-error" style="display:none;background:#fef2f2;border-radius:8px;padding:.625rem .875rem;margin-bottom:.75rem;font-size:12px;color:#b91c1c"></div>
-    <div id="signup-loading" style="display:none;text-align:center;padding:.75rem;font-size:13px;color:var(--text2)"><div class="dot-pulse" style="justify-content:center;margin-bottom:.4rem"><span></span><span></span><span></span></div>Creating account...</div>
-    <div id="signup-form-wrap">
-      <button class="btn primary full" style="margin-bottom:.625rem" onclick="runEmailSignup()">Sign up</button>
-      <button class="btn full" onclick="runGoogleLogin()">
-        <svg width="15" height="15" viewBox="0 0 48 48" style="margin-right:4px;flex-shrink:0"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-        Sign up with Google
-      </button>
-    </div>
-    <div style="text-align:center;margin-top:.875rem;font-size:12px;color:var(--text3)">
-      Already have an account? <span onclick="showLogin()" style="color:var(--purple);cursor:pointer;font-weight:500">Log in</span>
+
+  </div><!-- /content-area -->
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="bn-item active" data-panel="dashboard" onclick="switchPanel('dashboard',this)">
+      <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+      Home
+    </button>
+    <button class="bn-item" data-panel="scan" onclick="switchPanel('scan',this)">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      Scan
+    </button>
+    <button class="bn-item" data-panel="receipts" onclick="switchPanel('receipts',this)">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
+      Receipts
+    </button>
+    <button class="bn-item" data-panel="export" onclick="switchPanel('export',this)">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+      Export
+    </button>
+    <button class="bn-item" data-panel="more" onclick="switchPanel('more',this)">
+      <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+      More
+    </button>
+  </nav>
+
+  <!-- EDIT MODAL -->
+  <div class="modal-bg" id="edit-modal" onclick="if(event.target===this)closeModal()">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-title">Edit receipt</div>
+      <div class="field"><label>Merchant name</label><input id="f-merchant" type="text"></div>
+      <div class="field"><label>Date</label><input id="f-date" type="date"></div>
+      <div class="two-col">
+        <div class="field"><label>Total</label><input id="f-total" type="number" step="0.01"></div>
+        <div class="field"><label>Tax</label><input id="f-tax" type="number" step="0.01"></div>
+      </div>
+      <div class="field"><label>Category</label>
+        <select id="f-cat"><option>Food</option><option>Travel</option><option>Software</option><option>Office</option><option>Other</option></select>
+      </div>
+      <div class="field"><label>Notes</label><input id="f-notes" type="text" placeholder="e.g. Client dinner…"></div>
+      <div class="modal-btns">
+        <button class="btn danger" onclick="deleteReceiptEntry()">
+          <svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        </button>
+        <button class="btn" onclick="closeModal()">Cancel</button>
+        <button class="btn primary" onclick="saveEdit()">
+          <svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px;margin-right:2px"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8"/></svg> Save
+        </button>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
+  <!-- SCAN MODAL -->
+  <div class="modal-bg" id="scan-modal" onclick="if(event.target===this)closeScanModal()">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div id="scan-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- COMING SOON POPUP -->
+  <div class="popup-bg" id="cs-popup">
+    <div class="popup">
+      <div class="popup-icon" style="background:var(--purple-light)">
+        <svg class="icon" style="color:var(--purple)" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <div class="popup-title" id="cs-title">Coming soon</div>
+      <div class="popup-desc" id="cs-desc">This feature requires the Firebase backend. Available in the full launch version.</div>
+      <div class="popup-btns">
+        <button class="btn" onclick="document.getElementById('cs-popup').classList.remove('open')">Got it</button>
+        <button class="btn primary" onclick="document.getElementById('cs-popup').classList.remove('open');runExport()">Use CSV</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOGOUT POPUP -->
+  <div class="popup-bg" id="logout-popup">
+    <div class="popup">
+      <div class="popup-icon" style="background:var(--purple-light)">
+        <svg class="icon" style="color:var(--purple)" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      </div>
+      <div class="popup-title">Log out?</div>
+      <div class="popup-desc">You will return to the login screen. Your receipts will be here when you log back in.</div>
+      <div class="popup-btns">
+        <button class="btn" onclick="document.getElementById('logout-popup').classList.remove('open')">Cancel</button>
+        <button class="btn primary" onclick="runLogout()">Log out</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DELETE ACCOUNT POPUP -->
+  <div class="popup-bg" id="delete-popup">
+    <div class="popup">
+      <div class="popup-icon" style="background:#fef2f2">
+        <svg class="icon" style="color:#b91c1c" viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      </div>
+      <div class="popup-title">Delete account?</div>
+      <div class="popup-desc" id="delete-desc">This permanently deletes your account and all receipts. This cannot be undone.</div>
+      <div class="popup-btns">
+        <button class="btn" onclick="document.getElementById('delete-popup').classList.remove('open')">Cancel</button>
+        <button class="btn danger" onclick="runDeleteEverything()">Delete everything</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOGIN SCREEN -->
+  <div class="login-screen" id="login-screen">
+    <div class="login-card">
+      <div style="text-align:center;margin-bottom:1.5rem">
+        <!-- Premium Icon displays cleanly inside Login Screen Splash -->
+        <div style="width:64px;height:64px;border-radius:15px;display:flex;align-items:center;justify-content:center;margin:0 auto .875rem; overflow:hidden; border:1px solid var(--border); box-shadow: 0 4px 12px rgba(60,52,137,0.15); position:relative; background:var(--purple-light)">
+          <img src="image_bfe14a.jpg" alt="Paperless Logo" style="width:100%; height:100%; object-fit:cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+          <div class="logo-fallback" style="background:var(--purple)">
+            <svg class="icon" viewBox="0 0 24 24" style="width:28px; height:28px; color:#fff"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+        </div>
+        <div style="font-size:20px;font-weight:700;color:var(--text)">Paperless</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:3px">by Dev Nahin</div>
+      </div>
+      <div class="field"><label>Email</label><input id="login-email" type="email" placeholder="you@example.com"></div>
+      <div class="field"><label>Password</label><input id="login-pw" type="password" placeholder="••••••••"></div>
+      <div id="auth-error" style="display:none;background:#fef2f2;border-radius:8px;padding:.625rem .875rem;margin-bottom:.75rem;font-size:12px;color:#b91c1c"></div>
+      <div id="auth-loading" style="display:none;text-align:center;padding:.75rem;font-size:13px;color:var(--text2)"><div class="dot-pulse" style="justify-content:center;margin-bottom:.4rem"><span></span><span></span><span></span></div>Signing you in...</div>
+      <div id="auth-form-wrap">
+        <button class="btn primary full" style="margin-bottom:.625rem" onclick="runEmailLogin()">Log in</button>
+        <button class="btn full" onclick="runGoogleLogin()">
+          <svg width="15" height="15" viewBox="0 0 48 48" style="margin-right:4px;flex-shrink:0"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg> Continue with Google
+        </button>
+      </div>
+      <div style="text-align:center;margin-top:.875rem;font-size:12px;color:var(--text3)">
+        No account? <span onclick="showSignup()" style="color:var(--purple);cursor:pointer;font-weight:600">Sign up free</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIGNUP SCREEN -->
+  <div class="signup-screen" id="signup-screen">
+    <div class="signup-card">
+      <div style="text-align:center;margin-bottom:1.5rem">
+        <!-- Premium Icon displays cleanly inside Sign Up Screen Splash -->
+        <div style="width:64px;height:64px;border-radius:15px;display:flex;align-items:center;justify-content:center;margin:0 auto .875rem; overflow:hidden; border:1px solid var(--border); box-shadow: 0 4px 12px rgba(60,52,137,0.15); position:relative; background:var(--purple-light)">
+          <img src="image_bfe14a.jpg" alt="Paperless Logo" style="width:100%; height:100%; object-fit:cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+          <div class="logo-fallback" style="background:var(--purple)">
+            <svg class="icon" viewBox="0 0 24 24" style="width:28px; height:28px; color:#fff"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+        </div>
+        <div style="font-size:20px;font-weight:700;color:var(--text)">Create Account</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:3px">Join Paperless by Dev Nahin</div>
+      </div>
+      <div class="field"><label>Full Name</label><input id="signup-name" type="text" placeholder="John Doe"></div>
+      <div class="field"><label>Email Address</label><input id="signup-email" type="email" placeholder="you@example.com"></div>
+      <div class="field"><label>Password</label><input id="signup-pw" type="password" placeholder="••••••••"></div>
+      <div class="field"><label>Confirm Password</label><input id="signup-pw-confirm" type="password" placeholder="••••••••"></div>
+      <div id="signup-error" style="display:none;background:#fef2f2;border-radius:8px;padding:.625rem .875rem;margin-bottom:.75rem;font-size:12px;color:#b91c1c"></div>
+      <div id="signup-loading" style="display:none;text-align:center;padding:.75rem;font-size:13px;color:var(--text2)"><div class="dot-pulse" style="justify-content:center;margin-bottom:.4rem"><span></span><span></span><span></span></div>Creating account...</div>
+      <div id="signup-form-wrap">
+        <button class="btn primary full" style="margin-bottom:.625rem" onclick="runEmailSignup()">Sign up</button>
+        <button class="btn full" onclick="runGoogleLogin()">
+          <svg width="15" height="15" viewBox="0 0 48 48" style="margin-right:4px;flex-shrink:0"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg> Sign up with Google
+        </button>
+      </div>
+      <div style="text-align:center;margin-top:.875rem;font-size:12px;color:var(--text3)">
+        Already have an account? <span onclick="showLogin()" style="color:var(--purple);cursor:pointer;font-weight:600">Log in</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+</div> <!-- /app-viewport -->
 
 <script>
 // ── DATA PERSISTENCE INITIALIZATION ───────────
@@ -720,9 +833,15 @@ const currencySymbols = {
 };
 
 const catClass={Food:'cat-food',Travel:'cat-travel',Software:'cat-tech',Office:'cat-office',Other:'cat-other'};
-const catIcon={Food:'ti-tools-kitchen-2',Travel:'ti-car',Software:'ti-device-laptop',Office:'ti-building',Other:'ti-receipt'};
+const catIcon={
+  Food: `<svg class="icon" style="color:var(--green)" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`,
+  Travel: `<svg class="icon" style="color:var(--blue)" viewBox="0 0 24 24"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1 .4-1 1v7c0 .6.4 1 1 1h1M6 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM18 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg>`,
+  Software: `<svg class="icon" style="color:var(--purple)" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>`,
+  Office: `<svg class="icon" style="color:#633806" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/></svg>`,
+  Other: `<svg class="icon" style="color:#444" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>`
+};
+
 const catBg={Food:'var(--green-light)',Travel:'var(--blue-light)',Software:'var(--purple-light)',Office:'#FAEEDA',Other:'#f1f0ee'};
-const catColor={Food:'var(--green)',Travel:'var(--blue)',Software:'var(--purple)',Office:'#633806',Other:'#444'};
 
 const panels=['dashboard','scan','receipts','export','more','pipeline','about'];
 
@@ -742,12 +861,12 @@ let currentUser = null;
 
 // Core loader
 document.addEventListener('DOMContentLoaded', () => {
-  // Always load localStorage first so UI is not empty while Firebase loads
   loadStoredData();
   refreshDashboard();
   refreshReceiptList();
   applySettingsUI();
-  // Show login screen by default — Firebase auth listener will hide it on login
+  
+  // Show login screen by default
   document.getElementById('login-screen').classList.add('open');
 });
 
@@ -755,19 +874,15 @@ document.addEventListener('DOMContentLoaded', () => {
 auth.onAuthStateChanged(async (user) => {
   if(user){
     currentUser = user;
-    // Load cloud data
     await loadFirestoreData();
-    // Close both screens
     document.getElementById('login-screen').classList.remove('open');
     document.getElementById('signup-screen').classList.remove('open');
-    // Refresh UI with cloud data
     refreshDashboard();
     refreshReceiptList();
     applySettingsUI();
     showToast('Welcome back, ' + (user.displayName || user.email) + ' 👋');
   } else {
     currentUser = null;
-    // Show login screen
     document.getElementById('login-screen').classList.add('open');
   }
 });
@@ -782,12 +897,12 @@ async function loadFirestoreData(){
       .limit(200)
       .get();
     receipts = snap.docs.map(d=>({...d.data(), id:d.id}));
-    // Load settings
+    
+    // Load Settings
     const userDoc = await db.collection('users').doc(currentUser.uid).get();
     if(userDoc.exists && userDoc.data().settings){
       settings = {...settings, ...userDoc.data().settings};
     } else {
-      // New user — create profile in Firestore
       await db.collection('users').doc(currentUser.uid).set({
         userId: currentUser.uid,
         email: currentUser.email || '',
@@ -799,12 +914,12 @@ async function loadFirestoreData(){
       });
     }
   } catch(err){
-    console.warn('Firestore error, using localStorage:', err.message);
-    loadStoredData(); // fallback
+    console.warn('Firestore load failed, using local fallback:', err.message);
+    loadStoredData();
   }
 }
 
-// ── FIRESTORE HELPERS ───────────────────────────
+// ── FIRESTORE PERSISTENCE HELPERS ───────────────
 async function saveToFirestore(receipt){
   if(!currentUser) return null;
   try {
@@ -836,7 +951,7 @@ async function saveSettingsToFirestore(){
   catch(err){ console.warn('Settings save failed:', err); }
 }
 
-// ── FIREBASE AUTH FUNCTIONS ─────────────────────
+// ── AUTH LOGIC ──────────────────────────────────
 function showAuthError(id, msg){ const el=document.getElementById(id); if(el){el.textContent=msg;el.style.display='block';} }
 function clearAuthError(id){ const el=document.getElementById(id); if(el) el.style.display='none'; }
 function showAuthLoading(loadId, formId){ document.getElementById(loadId).style.display='block'; document.getElementById(formId).style.display='none'; }
@@ -854,8 +969,8 @@ function getAuthError(code){
     'auth/popup-closed-by-user':'Google sign-in was cancelled — please try again',
     'auth/popup-blocked':'Popup was blocked — trying redirect instead',
     'auth/network-request-failed':'No internet connection',
-    'auth/unauthorized-domain':'This domain is not authorized. Add it in Firebase Console → Authentication → Settings → Authorized domains',
-    'auth/operation-not-allowed':'Google sign-in is not enabled. Enable it in Firebase Console → Authentication → Sign-in providers',
+    'auth/unauthorized-domain':'Domain not authorized in Firebase Console.',
+    'auth/operation-not-allowed':'Google sign-in provider is not enabled.',
     'auth/internal-error':'An internal error occurred. Please try again',
     'auth/cancelled-popup-request':'Sign-in cancelled',
   };
@@ -894,17 +1009,14 @@ async function runGoogleLogin(){
   provider.addScope('profile');
   clearAuthError('auth-error');
 
-  // Show loading
   const loadEl = document.getElementById('auth-loading');
   const formEl = document.getElementById('auth-form-wrap');
   if(loadEl) loadEl.style.display = 'block';
   if(formEl) formEl.style.display = 'none';
 
   try {
-    // Try popup first (works on desktop browsers)
     await auth.signInWithPopup(provider);
   } catch(popupErr) {
-    // If popup fails (mobile, WebView, blocked) → use redirect
     if(
       popupErr.code === 'auth/popup-blocked' ||
       popupErr.code === 'auth/popup-closed-by-user' ||
@@ -912,9 +1024,7 @@ async function runGoogleLogin(){
       popupErr.code === 'auth/operation-not-supported-in-this-environment'
     ){
       try {
-        // Redirect method works everywhere including Median APK
         await auth.signInWithRedirect(provider);
-        // Page will reload — onAuthStateChanged handles the rest
       } catch(redirectErr){
         if(loadEl) loadEl.style.display = 'none';
         if(formEl) formEl.style.display = 'block';
@@ -928,19 +1038,14 @@ async function runGoogleLogin(){
   }
 }
 
-// Handle redirect result on page load
 auth.getRedirectResult().then((result) => {
   if(result && result.user){
-    // User came back from Google redirect — auth listener handles the rest
     console.log('Redirect login success:', result.user.email);
   }
 }).catch((err) => {
   if(err.code && err.code !== 'auth/no-auth-event'){
     console.warn('Redirect result error:', err.code);
-    // Show error on login screen
-    setTimeout(() => {
-      showAuthError('auth-error', getAuthError(err.code));
-    }, 500);
+    setTimeout(() => { showAuthError('auth-error', getAuthError(err.code)); }, 500);
   }
 });
 
@@ -996,12 +1101,11 @@ function switchPanel(id, el){
 // ── RENDER RECEIPTS ────────────────────────────
 function renderReceiptRow(r, actualIdx){
   const bg=catBg[r.cat]||'#f1f0ee';
-  const color=catColor[r.cat]||'#444';
-  const icon=catIcon[r.cat]||'ti-receipt';
+  const icon=catIcon[r.cat]||catIcon.Other;
   const symbol = currencySymbols[settings.currency] || '$';
   
   return `<button class="receipt-row" onclick="openEdit(${actualIdx})" style="width:100%;text-align:left;border:none;cursor:pointer">
-    <div class="receipt-icon" style="background:${bg}"><i class="ti ${icon}" style="color:${color}"></i></div>
+    <div class="receipt-icon" style="background:${bg}">${icon}</div>
     <div class="receipt-info">
       <div class="receipt-merchant">${escapeHtml(r.merchant)}</div>
       <div class="receipt-meta">${r.date} · ${escapeHtml(r.note||'')}</div>
@@ -1044,7 +1148,7 @@ function refreshDashboard(){
   // Dashboard list (recent 3)
   const dl=document.getElementById('dash-receipt-list');
   if (receipts.length === 0) {
-    dl.innerHTML = `<div style="text-align:center;padding:2rem 1rem;font-size:13px;color:var(--text3)">No receipts logged. Scan your first receipt below!</div>`;
+    dl.innerHTML = `<div style="text-align:center;padding:2rem 1rem;font-size:12px;color:var(--text3)">No receipts logged. Scan your first receipt below!</div>`;
   } else {
     dl.innerHTML=receipts.slice(0,3).map((r)=> {
       const idx = receipts.findIndex(item => item.id === r.id);
@@ -1058,7 +1162,7 @@ function refreshReceiptList(){
   const symbol = currencySymbols[settings.currency] || '$';
   
   if (receipts.length === 0) {
-    fl.innerHTML = `<div style="text-align:center;padding:3rem 1rem;font-size:13px;color:var(--text3)">No receipts stored yet.</div>`;
+    fl.innerHTML = `<div style="text-align:center;padding:3rem 1rem;font-size:12px;color:var(--text3)">No receipts stored yet.</div>`;
     document.getElementById('receipts-count').textContent = `0 receipts`;
     return;
   }
@@ -1105,17 +1209,23 @@ function closeModal(){
 
 async function saveEdit(){
   if(editingIdx!==null){
-    const merchant=document.getElementById('f-merchant').value.trim();
-    const total=document.getElementById('f-total').value;
-    if(!merchant||!total){showToast('Merchant and Total fields are required');return;}
+    const merchant = document.getElementById('f-merchant').value.trim();
+    const total = document.getElementById('f-total').value;
+    
+    if(!merchant || !total) {
+      showToast('Merchant and Total fields are required');
+      return;
+    }
+
     const updated={
-      merchant,
-      date:document.getElementById('f-date').value,
-      total:parseFloat(total).toFixed(2),
-      tax:parseFloat(document.getElementById('f-tax').value||0).toFixed(2),
-      cat:document.getElementById('f-cat').value,
-      note:document.getElementById('f-notes').value.trim()
+      merchant: merchant,
+      date: document.getElementById('f-date').value,
+      total: parseFloat(total).toFixed(2),
+      tax: parseFloat(document.getElementById('f-tax').value || 0).toFixed(2),
+      cat: document.getElementById('f-cat').value,
+      note: document.getElementById('f-notes').value.trim()
     };
+    
     const receiptId=receipts[editingIdx].id;
     receipts[editingIdx]={...receipts[editingIdx],...updated};
     if(currentUser){ updateInFirestore(receiptId, updated); }
@@ -1148,6 +1258,7 @@ function triggerScan(){
   input.click();
 }
 
+// ── UPLOAD MODULE ──
 function triggerUpload(){
   const input=document.createElement('input');
   input.type='file';input.accept='image/*,application/pdf';
@@ -1168,7 +1279,7 @@ function handleRealFile(file){
     setTimeout(()=>{
       body.innerHTML=`<div class="modal-title">Confirm details</div>
         <div style="background:var(--green-light);border-radius:var(--r);padding:.625rem .875rem;margin-bottom:.875rem;font-size:12px;color:var(--green);display:flex;align-items:center;gap:6px">
-          <i class="ti ti-circle-check"></i> Photo received — confirm or fill in details
+          <svg class="icon" viewBox="0 0 24 24" style="color:var(--green)"><polyline points="20 6 9 17 4 12"/></svg> Photo received — confirm details
         </div>
         <img src="${src}" style="width:100%;border-radius:var(--r);margin-bottom:.875rem;max-height:100px;object-fit:cover">
         <div class="field"><label>Merchant name</label><input type="text" id="r-merchant" placeholder="e.g. Starbucks"></div>
@@ -1182,7 +1293,9 @@ function handleRealFile(file){
         </div>
         <div class="modal-btns">
           <button class="btn" onclick="closeScanModal()">Cancel</button>
-          <button class="btn primary" onclick="saveRealReceipt()"><i class="ti ti-device-floppy"></i> Save</button>
+          <button class="btn primary" onclick="saveRealReceipt()">
+            <svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px;margin-right:2px"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8"/></svg> Save
+          </button>
         </div>`;
     },1800);
   };
@@ -1202,7 +1315,7 @@ function runDemo(type){
   setTimeout(()=>{
     body.innerHTML=`<div class="modal-title">Confirm details</div>
       <div style="background:var(--green-light);border-radius:var(--r);padding:.625rem .875rem;margin-bottom:.875rem;font-size:12px;color:var(--green);display:flex;align-items:center;gap:6px">
-        <i class="ti ti-circle-check"></i> Sample loaded — this is how AI extraction looks
+        <svg class="icon" viewBox="0 0 24 24" style="color:var(--green)"><polyline points="20 6 9 17 4 12"/></svg> Sample loaded — AI extraction preview
       </div>
       <div class="field"><label>Merchant name</label><input type="text" id="r-merchant" value="${d.merchant}"></div>
       <div class="field"><label>Date</label><input type="date" id="r-date" value="${d.date}"></div>
@@ -1220,7 +1333,9 @@ function runDemo(type){
       </div>
       <div class="modal-btns">
         <button class="btn" onclick="closeScanModal()">Cancel</button>
-        <button class="btn primary" onclick="saveRealReceipt()"><i class="ti ti-device-floppy"></i> Save</button>
+        <button class="btn primary" onclick="saveRealReceipt()">
+          <svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px;margin-right:2px"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8"/></svg> Save
+        </button>
       </div>`;
   },1200);
 }
@@ -1230,11 +1345,11 @@ function closeScanModal(){document.getElementById('scan-modal').classList.remove
 async function saveRealReceipt(){
   const merchant=document.getElementById('r-merchant').value.trim()||'Unknown merchant';
   const date=document.getElementById('r-date').value;
-  const total=parseFloat(document.getElementById('r-total').value||0).toFixed(2);
-  const tax=parseFloat(document.getElementById('r-tax').value||0).toFixed(2);
+  const total=parseFloat(document.getElementById('r-total').value || 0).toFixed(2);
+  const tax=parseFloat(document.getElementById('r-tax').value || 0).toFixed(2);
   const cat=document.getElementById('r-cat').value;
   const receipt={merchant,note:'Scanned receipt',date,total,tax,cat};
-
+  
   closeScanModal();
   if(currentUser){
     showToast('Saving...');
@@ -1244,6 +1359,7 @@ async function saveRealReceipt(){
     receipts.unshift({id:Date.now(),...receipt});
     saveData();
   }
+  
   refreshReceiptList();
   refreshDashboard();
   switchPanel('dashboard');
@@ -1284,9 +1400,11 @@ function runExport(){
     popup.id='csv-popup';
     popup.className='popup-bg open';
     popup.innerHTML=`<div class="popup">
-      <div class="popup-icon" style="background:var(--green-light)"><i class="ti ti-file-spreadsheet" style="color:var(--green)"></i></div>
+      <div class="popup-icon" style="background:var(--green-light)">
+        <svg class="icon" viewBox="0 0 24 24" style="color:var(--green)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      </div>
       <div class="popup-title">${fileName}</div>
-      <div class="popup-desc">If download did not start, tap Copy all and paste into Gmail or Google Sheets.</div>
+      <div class="popup-desc">If download did not start, copy the CSV data below.</div>
       <textarea id="csv-text" style="width:100%;height:120px;font-size:10px;font-family:monospace;border:1px solid var(--border);border-radius:var(--r);padding:.5rem;resize:none;margin-bottom:.875rem" readonly>${csv}</textarea>
       <div class="popup-btns">
         <button class="btn" onclick="document.getElementById('csv-popup').remove()">Close</button>
@@ -1309,7 +1427,6 @@ function runExport(){
 
 // ── SETTINGS SYSTEM ────────────────────────────
 function applySettingsUI() {
-  // Toggle states
   Object.keys(settings).forEach(key => {
     const el = document.getElementById('set-' + key);
     if (el) {
@@ -1368,13 +1485,22 @@ async function runDeleteEverything(){
       await currentUser.delete();
     } catch(err){ showToast('Please log out and log back in first'); return; }
   }
-  receipts=[];
-  settings={'notif-weekly':true,'notif-limit':true,'ai-cat':true,'save-img':true,'currency':'USD','export':'CSV'};
+  receipts = [];
+  settings = {
+    'notif-weekly': true,
+    'notif-limit': true,
+    'ai-cat': true,
+    'save-img': true,
+    'currency': 'USD',
+    'export': 'CSV'
+  };
   localStorage.removeItem('paperless_receipts');
   localStorage.removeItem('paperless_settings');
+  
+  document.getElementById('delete-popup').classList.remove('open');
   document.getElementById('signup-screen').classList.remove('open');
   document.getElementById('login-screen').classList.add('open');
-  showToast('Account deleted');
+  showToast('Everything reset successfully');
 }
 
 function showSignup() {
@@ -1388,7 +1514,6 @@ function showLogin() {
 }
 
 function runLogin(){
-  // Kept for local file preview — Firebase handles real login
   document.getElementById('login-screen').classList.remove('open');
   loadStoredData();
   refreshReceiptList();
@@ -1403,7 +1528,6 @@ function runSignup() {
   const pw = document.getElementById('signup-pw').value;
   const pwConfirm = document.getElementById('signup-pw-confirm').value;
 
-  // Google alternative signup/bypass flow if fields are empty
   if (!email && !pw) {
     document.getElementById('signup-screen').classList.remove('open');
     loadStoredData();
@@ -1414,7 +1538,6 @@ function runSignup() {
     return;
   }
 
-  // Field Validations
   if (!name) {
     showToast('Please enter your name');
     return;
@@ -1432,7 +1555,6 @@ function runSignup() {
     return;
   }
 
-  // Complete simulation
   document.getElementById('signup-screen').classList.remove('open');
   loadStoredData();
   refreshReceiptList();
@@ -1452,16 +1574,7 @@ function showToast(msg){
 
 function escapeHtml(str) {
   if (!str) return '';
-  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-}
-
-// Service Worker Registration for Offline support
-if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>{
-    navigator.serviceWorker.register('/paperless-app/sw.js')
-    .then(()=>console.log('Paperless: Local storage offline sync ready'))
-    .catch(e=>console.log('SW registration skipped (standard preview layout):',e));
-  });
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;").replace(/'/g, "&#039;");
 }
 </script>
 </body>
