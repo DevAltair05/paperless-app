@@ -2,604 +2,1089 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Paperless — by Dev Nahin</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.30.0/iconfont/tabler-icons.min.css">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --color-background-primary:#ffffff;
-  --color-background-secondary:#f8f8f8;
-  --color-background-tertiary:#f1f0ee;
-  --color-text-primary:#1a1a1a;
-  --color-text-secondary:#6b6b6b;
-  --color-text-tertiary:#9e9e9e;
-  --color-border-tertiary:#e5e5e5;
-  --color-border-secondary:#d4d4d4;
-  --font-sans:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-  --font-mono:'SF Mono','Fira Code',monospace;
-  --border-radius-md:8px;
-  --border-radius-lg:12px;
+  --bg:#ffffff;--bg2:#f8f8f8;--bg3:#f1f0ee;
+  --text:#1a1a1a;--text2:#6b6b6b;--text3:#9e9e9e;
+  --border:#e5e5e5;--border2:#d4d4d4;
+  --purple:#3C3489;--purple2:#534AB7;--purple-light:#EEEDFE;
+  --green:#085041;--green-light:#E1F5EE;
+  --blue:#0C447C;--blue-light:#E6F1FB;
+  --r:8px;--r2:12px;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 }
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--font-sans);background:var(--color-background-tertiary);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem}
-.app{display:flex;height:700px;width:960px;max-width:100%;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;position:relative;box-shadow:0 4px 32px rgba(0,0,0,.08)}
-.sidebar{width:220px;border-right:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);display:flex;flex-direction:column;flex-shrink:0}
-.brand{padding:1.25rem 1rem 1rem;border-bottom:0.5px solid var(--color-border-tertiary)}
-.brand-name{font-size:15px;font-weight:500;color:var(--color-text-primary);display:flex;align-items:center;gap:8px}
-.brand-badge{width:28px;height:28px;background:#3C3489;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.brand-badge i{font-size:15px;color:#EEEDFE}
-.brand-sub{font-size:11px;color:var(--color-text-tertiary);margin-top:2px;padding-left:36px}
-.plan-pill{display:inline-flex;align-items:center;gap:4px;background:#EEEDFE;color:#3C3489;font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;margin-top:8px;margin-left:36px}
-.nav{padding:.75rem .5rem;flex:1;overflow-y:auto}
-.nav-label{font-size:11px;color:var(--color-text-tertiary);font-weight:500;padding:.5rem .5rem;letter-spacing:.05em;text-transform:uppercase}
-.nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--border-radius-md);cursor:pointer;font-size:13px;color:var(--color-text-secondary);margin-bottom:2px;transition:all .15s;user-select:none}
-.nav-item:hover{background:var(--color-background-primary);color:var(--color-text-primary)}
-.nav-item.active{background:var(--color-background-primary);color:var(--color-text-primary);font-weight:500}
-.nav-item i{font-size:16px;width:16px}
-.badge{margin-left:auto;background:#3C3489;color:#EEEDFE;font-size:10px;padding:1px 6px;border-radius:20px}
-.user-row{padding:.75rem 1rem;border-top:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;gap:8px;cursor:pointer}
-.user-row:hover{background:var(--color-background-primary)}
-.avatar{width:28px;height:28px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#3C3489;flex-shrink:0}
-.user-name{font-size:13px;font-weight:500;color:var(--color-text-primary)}
-.user-email{font-size:11px;color:var(--color-text-tertiary)}
-.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
-.topbar{padding:.875rem 1.25rem;border-bottom:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;gap:10px;flex-shrink:0}
-.topbar-title{font-size:15px;font-weight:500;color:var(--color-text-primary);flex:1}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-primary);font-family:var(--font-sans);transition:all .15s;user-select:none}
-.btn:hover{background:var(--color-background-secondary)}
-.btn.primary{background:#3C3489;border-color:#3C3489;color:#EEEDFE}
-.btn.primary:hover{background:#534AB7}
-.btn.success{background:#085041;border-color:#085041;color:#E1F5EE}
-.btn.success:hover{background:#0F6E56}
-.btn.danger{background:#fef2f2;border-color:#fca5a5;color:#b91c1c}
-.content{flex:1;overflow-y:auto;padding:1.25rem}
-.panel{display:none}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--font);background:var(--bg3);display:flex;flex-direction:column}
+
+/* ── BOTTOM NAV (mobile) ── */
+.bottom-nav{
+  display:flex;flex-shrink:0;
+  background:var(--bg);border-top:1px solid var(--border);
+  height:58px;z-index:50;
+}
+.bn-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:3px;border:none;background:transparent;
+  font-family:var(--font);cursor:pointer;color:var(--text3);
+  font-size:10px;padding:6px 2px;transition:color .15s;
+}
+.bn-item i{font-size:22px}
+.bn-item.active{color:var(--purple)}
+.bn-item.active i{color:var(--purple)}
+
+/* ── TOPBAR ── */
+.topbar{
+  height:52px;flex-shrink:0;background:var(--bg);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 1rem;gap:8px;
+}
+.topbar-logo{
+  display:flex;align-items:center;gap:8px;flex:1;
+}
+.logo-badge{
+  width:30px;height:30px;background:var(--purple);border-radius:7px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.logo-badge i{font-size:17px;color:var(--purple-light)}
+.logo-name{font-size:16px;font-weight:600;color:var(--text)}
+.logo-by{font-size:11px;color:var(--text3)}
+.topbar-btn{
+  width:34px;height:34px;border-radius:var(--r);border:1px solid var(--border);
+  background:transparent;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--text2);flex-shrink:0;
+}
+.topbar-btn i{font-size:18px}
+
+/* ── CONTENT ── */
+.content-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.panel{display:none;padding:1rem}
 .panel.active{display:block}
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.5rem}
-.stat-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:.875rem 1rem}
-.stat-label{font-size:12px;color:var(--color-text-secondary);margin-bottom:4px;display:flex;align-items:center;gap:6px}
-.stat-value{font-size:22px;font-weight:500;color:var(--color-text-primary)}
-.stat-sub{font-size:11px;color:var(--color-text-tertiary);margin-top:2px}
-.limit-track{height:4px;background:var(--color-border-tertiary);border-radius:2px;overflow:hidden;margin-top:6px}
-.limit-fill{height:100%;background:#534AB7;border-radius:2px;width:30%}
-.limit-text{font-size:11px;color:var(--color-text-tertiary);margin-top:4px}
-.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
-.section-title{font-size:13px;font-weight:500;color:var(--color-text-secondary)}
-.receipt-list{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);overflow:hidden}
-.receipt-row{display:grid;grid-template-columns:32px 1fr 90px 100px 90px 50px;align-items:center;gap:12px;padding:10px 14px;border-bottom:0.5px solid var(--color-border-tertiary);font-size:13px;transition:background .1s;cursor:pointer}
+
+/* ── CARDS / STATS ── */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
+.stat-card{background:var(--bg2);border-radius:var(--r2);padding:.875rem;border:1px solid var(--border)}
+.stat-label{font-size:11px;color:var(--text2);margin-bottom:4px;display:flex;align-items:center;gap:5px}
+.stat-label i{font-size:14px}
+.stat-value{font-size:20px;font-weight:600;color:var(--text)}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.limit-track{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:6px}
+.limit-fill{height:100%;background:var(--purple);border-radius:2px;width:30%;transition:width .3s ease}
+.limit-text{font-size:10px;color:var(--text3);margin-top:3px}
+
+/* ── SECTION HEADER ── */
+.sec-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
+.sec-title{font-size:13px;font-weight:500;color:var(--text2)}
+
+/* ── RECEIPT LIST ── */
+.receipt-list{border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;margin-bottom:1rem}
+.receipt-row{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--border);cursor:pointer;touch-action:manipulation;background:var(--bg)}
 .receipt-row:last-child{border-bottom:none}
-.receipt-row:hover{background:var(--color-background-secondary)}
-.receipt-row.header{background:var(--color-background-secondary);cursor:default;color:var(--color-text-secondary);font-size:12px;font-weight:500}
-.receipt-row.header:hover{background:var(--color-background-secondary)}
-.merchant{font-weight:500;color:var(--color-text-primary)}
-.date-text{color:var(--color-text-secondary)}
-.amount{font-weight:500;color:var(--color-text-primary);text-align:right}
-.cat-pill{display:inline-flex;align-items:center;gap:4px;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500}
-.cat-food{background:#E1F5EE;color:#085041}
-.cat-travel{background:#E6F1FB;color:#0C447C}
-.cat-tech{background:#EEEDFE;color:#3C3489}
-.checkbox{width:16px;height:16px;border:0.5px solid var(--color-border-secondary);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer}
-.checkbox.checked{background:#3C3489;border-color:#3C3489}
-.checkbox.checked::after{content:'✓';color:#EEEDFE;font-size:10px;font-weight:700}
-.search-row{display:flex;gap:8px;margin-bottom:1rem}
-.search-box{flex:1;display:flex;align-items:center;gap:8px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:6px 12px;background:var(--color-background-secondary)}
-.search-box input{border:none;background:transparent;font-size:13px;color:var(--color-text-primary);outline:none;flex:1;font-family:var(--font-sans)}
-.search-box input::placeholder{color:var(--color-text-tertiary)}
-.scan-area{border:1.5px dashed var(--color-border-secondary);border-radius:var(--border-radius-lg);padding:2.5rem;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:1rem}
-.scan-area:hover{border-color:#534AB7;background:#EEEDFE}
-.scan-icon{width:56px;height:56px;background:#EEEDFE;border-radius:var(--border-radius-lg);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem}
-.scan-icon i{font-size:28px;color:#3C3489}
-.or-divider{display:flex;align-items:center;gap:12px;margin:1rem 0;font-size:12px;color:var(--color-text-tertiary)}
-.or-divider::before,.or-divider::after{content:'';flex:1;border-top:0.5px solid var(--color-border-tertiary)}
-.pipeline-card{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:1rem 1.25rem;margin-bottom:.75rem}
-.pipeline-header{display:flex;align-items:center;gap:10px;margin-bottom:.5rem}
-.pipeline-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.pipeline-title{font-size:13px;font-weight:500;color:var(--color-text-primary)}
-.pipeline-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.5;padding-left:38px}
-.json-block{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.875rem 1rem;font-family:var(--font-mono);font-size:11.5px;color:var(--color-text-primary);line-height:1.7;margin-top:.75rem}
-.json-key{color:#534AB7}.json-str{color:#0F6E56}.json-num{color:#993C1D}
-.step-flow{display:flex;margin:0 0 1rem;overflow:hidden;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary)}
-.step-node{flex:1;padding:8px 10px;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--color-text-secondary);border-right:0.5px solid var(--color-border-tertiary)}
+.receipt-row:active{background:var(--bg2)}
+.receipt-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.receipt-icon i{font-size:17px}
+.receipt-info{flex:1;min-width:0}
+.receipt-merchant{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.receipt-meta{font-size:11px;color:var(--text3);margin-top:1px}
+.receipt-amount{font-size:14px;font-weight:600;color:var(--text);flex-shrink:0}
+.receipt-cat{flex-shrink:0}
+
+/* ── CATEGORY PILLS ── */
+.cat{display:inline-flex;align-items:center;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500}
+.cat-food{background:var(--green-light);color:var(--green)}
+.cat-travel{background:var(--blue-light);color:var(--blue)}
+.cat-tech{background:var(--purple-light);color:var(--purple)}
+.cat-office{background:#FAEEDA;color:#633806}
+.cat-other{background:#f1f0ee;color:#444}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r);font-size:13px;cursor:pointer;border:1px solid var(--border2);background:var(--bg);color:var(--text);font-family:var(--font);touch-action:manipulation}
+.btn:active{background:var(--bg2)}
+.btn.primary{background:var(--purple);border-color:var(--purple);color:var(--purple-light)}
+.btn.primary:active{background:var(--purple2)}
+.btn.success{background:var(--green);border-color:var(--green);color:var(--green-light)}
+.btn.danger{background:#fef2f2;border-color:#fca5a5;color:#b91c1c}
+.btn.full{width:100%;justify-content:center}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:.875rem}
+
+/* ── SCAN AREA ── */
+.scan-area{border:2px dashed var(--border2);border-radius:var(--r2);padding:2rem 1.5rem;text-align:center;touch-action:manipulation;margin-bottom:1rem}
+.scan-area:active{background:var(--purple-light);border-color:var(--purple)}
+.scan-icon-wrap{width:56px;height:56px;background:var(--purple-light);border-radius:var(--r2);display:flex;align-items:center;justify-content:center;margin:0 auto .875rem}
+.scan-icon-wrap i{font-size:28px;color:var(--purple)}
+
+/* ── SAMPLE CARDS ── */
+.sample-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:.5rem}
+.sample-card{border:1px solid var(--border);border-radius:var(--r);padding:.75rem .5rem;text-align:center;cursor:pointer;touch-action:manipulation;background:var(--bg)}
+.sample-card:active{background:var(--purple-light);border-color:var(--purple)}
+.sample-icon{width:32px;height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center;margin:0 auto .5rem}
+.sample-icon i{font-size:16px}
+.sample-label{font-size:12px;font-weight:500;color:var(--text)}
+.sample-sub{font-size:10px;color:var(--text3);margin-top:2px}
+
+/* ── SEARCH ── */
+.search-wrap{display:flex;gap:8px;margin-bottom:.875rem}
+.search-box{flex:1;display:flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:var(--r);padding:8px 12px;background:var(--bg2)}
+.search-box i{font-size:16px;color:var(--text3);flex-shrink:0}
+.search-box input{border:none;background:transparent;font-size:13px;color:var(--text);outline:none;flex:1;font-family:var(--font)}
+.search-box input::placeholder{color:var(--text3)}
+
+/* ── EXPORT CARDS ── */
+.export-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
+.export-card{border:1px solid var(--border);border-radius:var(--r2);padding:1rem;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
+.export-card:active{background:var(--bg2)}
+.export-card.selected{border:2px solid var(--purple);background:var(--purple-light)}
+.export-card.disabled{opacity:.55;cursor:default}
+.export-icon{width:38px;height:38px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;margin-bottom:.625rem}
+.export-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px}
+.export-sub{font-size:11px;color:var(--text2);line-height:1.4}
+
+/* ── PIPELINE ── */
+.step-flow{display:flex;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:1rem}
+.step-node{flex:1;padding:7px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9px;color:var(--text3);border-right:1px solid var(--border);text-align:center}
 .step-node:last-child{border-right:none}
-.step-node.done{background:#E1F5EE;color:#085041}
-.step-node.active{background:#EEEDFE;color:#3C3489;font-weight:500}
-.export-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem}
-.export-card{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:1.25rem;cursor:pointer;transition:all .15s}
-.export-card:hover{border-color:#534AB7;background:#EEEDFE}
-.export-card.selected{border:1.5px solid #534AB7;background:#EEEDFE}
-.export-icon{width:40px;height:40px;border-radius:var(--border-radius-md);display:flex;align-items:center;justify-content:center;margin-bottom:.75rem}
-.modal-bg{display:none;position:absolute;inset:0;background:rgba(0,0,0,.35);z-index:100;align-items:center;justify-content:center}
+.step-node i{font-size:14px}
+.step-node.done{background:var(--green-light);color:var(--green)}
+.step-node.active{background:var(--purple-light);color:var(--purple);font-weight:500}
+.pipe-card{border:1px solid var(--border);border-radius:var(--r2);padding:.875rem;margin-bottom:.75rem}
+.pipe-head{display:flex;align-items:center;gap:8px;margin-bottom:.5rem}
+.pipe-icon{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pipe-title{font-size:13px;font-weight:500;color:var(--text)}
+.pipe-desc{font-size:12px;color:var(--text2);line-height:1.5}
+.json-block{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:.75rem;font-family:monospace;font-size:11px;color:var(--text);line-height:1.6;margin-top:.625rem;overflow-x:auto}
+.jk{color:var(--purple2)}.js{color:var(--green)}.jn{color:#993C1D}
+
+/* ── SETTINGS ── */
+.settings-group{margin-bottom:1.25rem}
+.sg-title{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:.625rem;padding-bottom:5px;border-bottom:1px solid var(--border)}
+.setting-row{display:flex;align-items:center;padding:.75rem 0;border-bottom:1px solid var(--border);gap:10px}
+.setting-row:last-child{border-bottom:none}
+.setting-info{flex:1}
+.setting-label{font-size:13px;font-weight:500;color:var(--text)}
+.setting-desc{font-size:11px;color:var(--text2);margin-top:2px}
+.toggle{width:36px;height:20px;border-radius:10px;background:var(--border2);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;border:none}
+.toggle.on{background:var(--purple)}
+.toggle::after{content:'';position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:left .2s}
+.toggle.on::after{left:19px}
+.sel-input{font-size:12px;padding:5px 8px;border:1px solid var(--border2);border-radius:var(--r);background:var(--bg);color:var(--text);font-family:var(--font);cursor:pointer}
+
+/* ── ABOUT ── */
+.about-hero{background:linear-gradient(135deg,#26215C,#3C3489 60%,#534AB7);border-radius:var(--r2);padding:1.5rem;margin-bottom:1rem}
+.dev-card{display:flex;align-items:center;gap:.875rem}
+.dev-pic{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#EEEDFE,#C8C4FA);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--purple);flex-shrink:0;border:2px solid rgba(255,255,255,.25)}
+.dev-name{font-size:18px;font-weight:600;color:#EEEDFE}
+.dev-role{font-size:12px;color:rgba(238,237,254,.7);margin-top:2px}
+.dev-tags{display:flex;gap:5px;margin-top:.5rem;flex-wrap:wrap}
+.dev-tag{font-size:10px;padding:2px 7px;border-radius:20px;background:rgba(255,255,255,.12);color:rgba(238,237,254,.9);font-weight:500}
+.about-sec-title{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:.625rem;padding-bottom:5px;border-bottom:1px solid var(--border)}
+.tech-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:1rem}
+.tech-chip{border:1px solid var(--border);border-radius:var(--r);padding:.5rem;text-align:center}
+.tech-name{font-size:11px;font-weight:500;color:var(--text)}
+.tech-sub{font-size:10px;color:var(--text3);margin-top:1px}
+.info-list{border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;margin-bottom:1rem}
+.info-row{display:flex;align-items:center;gap:10px;padding:.625rem .875rem;border-bottom:1px solid var(--border)}
+.info-row:last-child{border-bottom:none}
+.info-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.info-icon i{font-size:14px}
+.info-label{font-size:11px;color:var(--text2)}
+.info-value{font-size:13px;color:var(--text);font-weight:500}
+.changelog-list{border:1px solid var(--border);border-radius:var(--r2);padding:.5rem .875rem;margin-bottom:1rem}
+.cl-item{display:flex;align-items:flex-start;gap:8px;padding:.5rem 0;border-bottom:1px solid var(--border)}
+.cl-item:last-child{border-bottom:none}
+.cl-dot{width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0}
+.cl-ver{font-size:10px;font-weight:500;color:var(--text3);margin-bottom:2px}
+.cl-desc{font-size:12px;color:var(--text)}
+.contact-row{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ── MODALS ── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:flex-end;justify-content:center;padding:0}
 .modal-bg.open{display:flex}
-.modal{background:var(--color-background-primary);border-radius:var(--border-radius-lg);border:0.5px solid var(--color-border-tertiary);width:380px;max-height:580px;overflow-y:auto;flex-shrink:0}
-.modal-head{padding:1rem 1.25rem;border-bottom:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;justify-content:space-between}
-.modal-title{font-size:14px;font-weight:500;color:var(--color-text-primary)}
-.modal-body{padding:1.25rem}
-.field{margin-bottom:.875rem}
-.field label{font-size:12px;color:var(--color-text-secondary);display:block;margin-bottom:4px}
-.field input,.field select{width:100%;padding:7px 10px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);font-size:13px;font-family:var(--font-sans);background:var(--color-background-primary);color:var(--color-text-primary);outline:none}
-.field input:focus,.field select:focus{border-color:#534AB7}
-.ai-thinking{display:flex;align-items:center;gap:8px;padding:.75rem 1rem;background:#EEEDFE;border-radius:var(--border-radius-md);font-size:12px;color:#3C3489;margin:.75rem 0}
-.dot-pulse{display:flex;gap:4px;align-items:center}
-.dot-pulse span{width:5px;height:5px;border-radius:50%;background:#534AB7;animation:pulse 1.2s ease-in-out infinite}
+.modal{background:var(--bg);border-radius:var(--r2) var(--r2) 0 0;width:100%;max-height:90vh;overflow-y:auto;padding:1.25rem}
+.modal-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto .875rem}
+.modal-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:1rem}
+.field{margin-bottom:.75rem}
+.field label{font-size:12px;color:var(--text2);display:block;margin-bottom:4px}
+.field input,.field select{width:100%;padding:9px 11px;border:1px solid var(--border2);border-radius:var(--r);font-size:14px;font-family:var(--font);background:var(--bg);color:var(--text);outline:none}
+.field input:focus,.field select:focus{border-color:var(--purple)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.modal-btns{display:flex;gap:8px;margin-top:1rem}
+.modal-btns .btn{flex:1;justify-content:center}
+
+/* ── AI THINKING ── */
+.ai-thinking{display:flex;align-items:center;gap:8px;padding:.75rem 1rem;background:var(--purple-light);border-radius:var(--r);font-size:12px;color:var(--purple);margin:.75rem 0}
+.dot-pulse{display:flex;gap:4px}
+.dot-pulse span{width:5px;height:5px;border-radius:50%;background:var(--purple2);animation:pulse 1.2s ease-in-out infinite}
 .dot-pulse span:nth-child(2){animation-delay:.2s}
 .dot-pulse span:nth-child(3){animation-delay:.4s}
 @keyframes pulse{0%,80%,100%{transform:scale(.6);opacity:.6}40%{transform:scale(1);opacity:1}}
-/* SETTINGS */
-.settings-group{margin-bottom:1.5rem}
-.settings-group-title{font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--color-text-tertiary);margin-bottom:.75rem;padding-bottom:6px;border-bottom:0.5px solid var(--color-border-tertiary)}
-.setting-row{display:flex;align-items:center;padding:.75rem 0;border-bottom:0.5px solid var(--color-border-tertiary);gap:12px}
-.setting-row:last-child{border-bottom:none}
-.setting-info{flex:1}
-.setting-label{font-size:13px;font-weight:500;color:var(--color-text-primary)}
-.setting-desc{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
-.toggle{width:36px;height:20px;border-radius:10px;background:var(--color-border-secondary);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
-.toggle.on{background:#3C3489}
-.toggle::after{content:'';position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:left .2s}
-.toggle.on::after{left:19px}
-/* ABOUT */
-.about-hero{background:linear-gradient(135deg,#26215C 0%,#3C3489 60%,#534AB7 100%);border-radius:var(--border-radius-lg);padding:2rem;margin-bottom:1.25rem;position:relative;overflow:hidden}
-.about-hero::before{content:'';position:absolute;top:-30px;right:-30px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.06)}
-.about-hero::after{content:'';position:absolute;bottom:-50px;right:40px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.04)}
-.dev-card{display:flex;align-items:center;gap:1rem;position:relative;z-index:1}
-.dev-pic{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#EEEDFE,#C8C4FA);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#3C3489;flex-shrink:0;border:2px solid rgba(255,255,255,.25)}
-.dev-name{font-size:20px;font-weight:600;color:#EEEDFE;letter-spacing:-.01em}
-.dev-role{font-size:13px;color:rgba(238,237,254,.7);margin-top:2px}
-.dev-tags{display:flex;gap:6px;margin-top:.625rem;flex-wrap:wrap}
-.dev-tag{font-size:11px;padding:2px 8px;border-radius:20px;background:rgba(255,255,255,.12);color:rgba(238,237,254,.9);font-weight:500}
-.about-section{margin-bottom:1.25rem}
-.about-section-title{font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--color-text-tertiary);margin-bottom:.75rem;padding-bottom:6px;border-bottom:0.5px solid var(--color-border-tertiary)}
-.tech-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.tech-chip{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.5rem .75rem;text-align:center}
-.tech-chip-label{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px}
-.tech-chip-sub{font-size:10px;color:var(--color-text-tertiary)}
-.info-list{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);overflow:hidden}
-.info-row{display:flex;align-items:center;gap:12px;padding:.625rem 1rem;border-bottom:0.5px solid var(--color-border-tertiary)}
-.info-row:last-child{border-bottom:none}
-.info-icon{width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.info-label{font-size:12px;color:var(--color-text-secondary)}
-.info-value{font-size:13px;color:var(--color-text-primary);font-weight:500}
-.changelog-list{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.5rem 1rem}
-.changelog-item{padding:.625rem 0;border-bottom:0.5px solid var(--color-border-tertiary);display:flex;align-items:flex-start;gap:10px}
-.changelog-item:last-child{border-bottom:none}
-.changelog-dot{width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0}
-.changelog-ver{font-size:11px;font-weight:500;color:var(--color-text-tertiary);margin-bottom:2px}
-.changelog-desc{font-size:13px;color:var(--color-text-primary)}
-.contact-btns{display:flex;gap:8px;flex-wrap:wrap}
-.toast{position:absolute;bottom:1rem;left:50%;transform:translateX(-50%);background:#26215C;color:#EEEDFE;padding:8px 16px;border-radius:20px;font-size:13px;z-index:200;white-space:nowrap;transition:opacity .3s;opacity:0;pointer-events:none}
+
+/* ── FULL-SCREEN POPUP ── */
+.popup-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;align-items:center;justify-content:center;padding:1rem}
+.popup-bg.open{display:flex}
+.popup{background:var(--bg);border-radius:var(--r2);padding:1.5rem;width:100%;max-width:340px;text-align:center}
+.popup-icon{width:48px;height:48px;border-radius:var(--r2);display:flex;align-items:center;justify-content:center;margin:0 auto .875rem}
+.popup-icon i{font-size:24px}
+.popup-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:.5rem}
+.popup-desc{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:1.125rem}
+.popup-btns{display:flex;gap:8px;justify-content:center}
+
+/* ── LOGIN SCREEN ── */
+.login-screen{display:none;position:fixed;inset:0;background:var(--bg3);z-index:400;align-items:center;justify-content:center;padding:1rem}
+.login-screen.open{display:flex}
+.login-card{background:var(--bg);border-radius:var(--r2);padding:1.75rem;width:100%;max-width:360px;box-shadow:0 8px 40px rgba(0,0,0,.1)}
+
+/* ── SIGNUP SCREEN ── */
+.signup-screen{display:none;position:fixed;inset:0;background:var(--bg3);z-index:400;align-items:center;justify-content:center;padding:1rem}
+.signup-screen.open{display:flex}
+.signup-card{background:var(--bg);border-radius:var(--r2);padding:1.75rem;width:100%;max-width:360px;box-shadow:0 8px 40px rgba(0,0,0,.1)}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:#26215C;color:#EEEDFE;padding:8px 18px;border-radius:20px;font-size:13px;z-index:500;white-space:nowrap;transition:opacity .3s;opacity:0;pointer-events:none}
 .toast.show{opacity:1}
+
+/* ── OR DIVIDER ── */
+.or-div{display:flex;align-items:center;gap:10px;margin:.875rem 0;font-size:11px;color:var(--text3)}
+.or-div::before,.or-div::after{content:'';flex:1;border-top:1px solid var(--border)}
+
+/* ── EXPORT RESULT ── */
+.export-ok{display:none;align-items:center;gap:8px;padding:.75rem 1rem;background:var(--green-light);border-radius:var(--r);font-size:12px;color:var(--green);margin-top:.875rem}
+.export-ok.show{display:flex}
 </style>
 </head>
 <body>
 
-<div class="app">
-
-  <!-- SIDEBAR -->
-  <div class="sidebar">
-    <div class="brand">
-      <div class="brand-name">
-        <div class="brand-badge"><i class="ti ti-scan"></i></div>
-        Paperless
-      </div>
-      <div class="brand-sub">by Dev Nahin</div>
-      <div class="plan-pill"><i class="ti ti-star" style="font-size:11px"></i> Free plan</div>
-    </div>
-    <nav class="nav">
-      <div class="nav-label">Main</div>
-      <div class="nav-item active" data-panel="dashboard" onclick="switchPanel('dashboard',this)"><i class="ti ti-layout-dashboard"></i> Dashboard</div>
-      <div class="nav-item" data-panel="scan" onclick="switchPanel('scan',this)"><i class="ti ti-camera"></i> Scan receipt <span class="badge">New</span></div>
-      <div class="nav-item" data-panel="receipts" onclick="switchPanel('receipts',this)"><i class="ti ti-receipt"></i> My receipts</div>
-      <div class="nav-label" style="margin-top:.5rem">Tools</div>
-      <div class="nav-item" data-panel="export" onclick="switchPanel('export',this)"><i class="ti ti-download"></i> Export</div>
-      <div class="nav-item" data-panel="pipeline" onclick="switchPanel('pipeline',this)"><i class="ti ti-cpu"></i> AI pipeline</div>
-      <div class="nav-label" style="margin-top:.5rem">Account</div>
-      <div class="nav-item" data-panel="settings" onclick="switchPanel('settings',this)"><i class="ti ti-settings"></i> Settings</div>
-      <div class="nav-item" data-panel="about" onclick="switchPanel('about',this)"><i class="ti ti-info-circle"></i> About & developer</div>
-    </nav>
-    <div class="user-row" onclick="switchPanel('settings',document.querySelector('[data-panel=settings]'))">
-      <div class="avatar">JS</div>
-      <div>
-        <div class="user-name">Jamie S.</div>
-        <div class="user-email">3 / 10 scans used</div>
-      </div>
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-logo">
+    <div class="logo-badge"><i class="ti ti-scan"></i></div>
+    <div>
+      <div class="logo-name">Paperless</div>
+      <div class="logo-by">by Dev Nahin</div>
     </div>
   </div>
-
-  <!-- MAIN -->
-  <div class="main">
-    <div class="topbar">
-      <span class="topbar-title" id="topbar-title">Dashboard</span>
-      <button class="btn" onclick="switchPanel('about',document.querySelector('[data-panel=about]'))" style="font-size:12px"><i class="ti ti-code"></i> Dev Nahin</button>
-      <button class="btn" onclick="switchPanel('export',document.querySelector('[data-panel=export]'))"><i class="ti ti-download"></i> Export CSV</button>
-      <button class="btn primary" onclick="switchPanel('scan',document.querySelector('[data-panel=scan]'))"><i class="ti ti-camera"></i> Scan receipt</button>
-    </div>
-
-    <div class="content">
-
-      <!-- DASHBOARD -->
-      <div class="panel active" id="panel-dashboard">
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-label"><i class="ti ti-receipt-2"></i> Total receipts</div>
-            <div class="stat-value">3</div>
-            <div class="stat-sub">This month</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label"><i class="ti ti-currency-dollar"></i> Total spent</div>
-            <div class="stat-value">$241.40</div>
-            <div class="stat-sub">Across all categories</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label"><i class="ti ti-scan"></i> Scans left</div>
-            <div class="stat-value">7</div>
-            <div class="stat-sub">Free tier limit</div>
-            <div class="limit-track"><div class="limit-fill"></div></div>
-            <div class="limit-text">3 of 10 used</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label"><i class="ti ti-tag"></i> Top category</div>
-            <div class="stat-value" style="font-size:16px;padding-top:4px"><span class="cat-pill cat-travel">Travel</span></div>
-            <div class="stat-sub">$183.60 this month</div>
-          </div>
-        </div>
-        <div class="section-header">
-          <div class="section-title">Recent receipts</div>
-          <button class="btn" onclick="switchPanel('receipts',document.querySelector('[data-panel=receipts]'))" style="font-size:12px;padding:4px 10px">View all</button>
-        </div>
-        <div class="receipt-list">
-          <div class="receipt-row header"><div></div><div>Merchant</div><div>Date</div><div>Amount</div><div>Category</div><div></div></div>
-          <div class="receipt-row" onclick="openEdit(0)">
-            <div class="checkbox checked"></div>
-            <div><div class="merchant">Shake Shack</div><div style="font-size:11px;color:var(--color-text-tertiary)">Order #4419</div></div>
-            <div class="date-text">Jun 14</div><div class="amount">$42.80</div>
-            <div><span class="cat-pill cat-food">Food</span></div>
-            <div><i class="ti ti-dots" style="font-size:14px;color:var(--color-text-tertiary)"></i></div>
-          </div>
-          <div class="receipt-row" onclick="openEdit(1)">
-            <div class="checkbox"></div>
-            <div><div class="merchant">Figma</div><div style="font-size:11px;color:var(--color-text-tertiary)">Monthly sub</div></div>
-            <div class="date-text">Jun 12</div><div class="amount">$15.00</div>
-            <div><span class="cat-pill cat-tech">Software</span></div>
-            <div><i class="ti ti-dots" style="font-size:14px;color:var(--color-text-tertiary)"></i></div>
-          </div>
-          <div class="receipt-row" onclick="openEdit(2)">
-            <div class="checkbox"></div>
-            <div><div class="merchant">Grab — Airport</div><div style="font-size:11px;color:var(--color-text-tertiary)">Trip to SGX</div></div>
-            <div class="date-text">Jun 10</div><div class="amount">$183.60</div>
-            <div><span class="cat-pill cat-travel">Travel</span></div>
-            <div><i class="ti ti-dots" style="font-size:14px;color:var(--color-text-tertiary)"></i></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- SCAN -->
-      <div class="panel" id="panel-scan">
-        <div class="scan-area" onclick="triggerScan()">
-          <div class="scan-icon"><i class="ti ti-camera"></i></div>
-          <div style="font-size:15px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px">Snap or upload a receipt</div>
-          <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1.25rem">JPG, PNG, HEIC, PDF — up to 10 MB</div>
-          <div style="display:flex;gap:8px;justify-content:center">
-            <button class="btn primary" onclick="event.stopPropagation();triggerScan()"><i class="ti ti-camera"></i> Take photo</button>
-            <button class="btn" onclick="event.stopPropagation();triggerUpload()"><i class="ti ti-upload"></i> Upload file</button>
-          </div>
-        </div>
-        <div class="or-divider">or try a sample receipt</div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
-          <div class="pipeline-card" style="cursor:pointer" onclick="runDemo('restaurant')">
-            <div style="display:flex;align-items:center;gap:8px">
-              <div class="pipeline-icon" style="background:#E1F5EE"><i class="ti ti-tools-kitchen-2" style="font-size:16px;color:#0F6E56"></i></div>
-              <div><div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">Restaurant</div><div style="font-size:11px;color:var(--color-text-tertiary)">Dine-in receipt</div></div>
-            </div>
-          </div>
-          <div class="pipeline-card" style="cursor:pointer" onclick="runDemo('hotel')">
-            <div style="display:flex;align-items:center;gap:8px">
-              <div class="pipeline-icon" style="background:#E6F1FB"><i class="ti ti-building" style="font-size:16px;color:#185FA5"></i></div>
-              <div><div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">Hotel</div><div style="font-size:11px;color:var(--color-text-tertiary)">Business stay</div></div>
-            </div>
-          </div>
-          <div class="pipeline-card" style="cursor:pointer" onclick="runDemo('software')">
-            <div style="display:flex;align-items:center;gap:8px">
-              <div class="pipeline-icon" style="background:#EEEDFE"><i class="ti ti-device-laptop" style="font-size:16px;color:#534AB7"></i></div>
-              <div><div style="font-size:13px;font-weight:500;color:var(--color-text-primary)">Software</div><div style="font-size:11px;color:var(--color-text-tertiary)">SaaS invoice</div></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- RECEIPTS -->
-      <div class="panel" id="panel-receipts">
-        <div class="search-row">
-          <div class="search-box"><i class="ti ti-search"></i><input type="text" placeholder="Search merchant, amount, or category…" oninput="filterReceipts(this.value)"></div>
-          <button class="btn"><i class="ti ti-filter"></i> Filter</button>
-          <button class="btn"><i class="ti ti-arrows-sort"></i> Sort</button>
-        </div>
-        <div class="section-header">
-          <div class="section-title" id="receipts-count">3 receipts — $241.40 total</div>
-          <button class="btn" onclick="selectAll()"><i class="ti ti-checkbox"></i> Select all</button>
-        </div>
-        <div class="receipt-list" id="full-receipt-list">
-          <div class="receipt-row header"><div></div><div>Merchant</div><div>Date</div><div>Amount</div><div>Category</div><div></div></div>
-          <div class="receipt-row" data-idx="0" onclick="openEdit(0)">
-            <div class="checkbox checked"></div>
-            <div><div class="merchant">Shake Shack</div><div style="font-size:11px;color:var(--color-text-tertiary)">Order #4419</div></div>
-            <div class="date-text">Jun 14, 2026</div><div class="amount">$42.80</div>
-            <div><span class="cat-pill cat-food">Food</span></div>
-            <div><button class="btn" style="padding:3px 8px;font-size:11px" onclick="event.stopPropagation();openEdit(0)">Edit</button></div>
-          </div>
-          <div class="receipt-row" data-idx="1" onclick="openEdit(1)">
-            <div class="checkbox"></div>
-            <div><div class="merchant">Figma</div><div style="font-size:11px;color:var(--color-text-tertiary)">Monthly subscription</div></div>
-            <div class="date-text">Jun 12, 2026</div><div class="amount">$15.00</div>
-            <div><span class="cat-pill cat-tech">Software</span></div>
-            <div><button class="btn" style="padding:3px 8px;font-size:11px" onclick="event.stopPropagation();openEdit(1)">Edit</button></div>
-          </div>
-          <div class="receipt-row" data-idx="2" onclick="openEdit(2)">
-            <div class="checkbox"></div>
-            <div><div class="merchant">Grab — Airport</div><div style="font-size:11px;color:var(--color-text-tertiary)">Trip to SGX</div></div>
-            <div class="date-text">Jun 10, 2026</div><div class="amount">$183.60</div>
-            <div><span class="cat-pill cat-travel">Travel</span></div>
-            <div><button class="btn" style="padding:3px 8px;font-size:11px" onclick="event.stopPropagation();openEdit(2)">Edit</button></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- EXPORT -->
-      <div class="panel" id="panel-export">
-        <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem;line-height:1.6">Export your receipts as CSV — works on all devices. Excel, PDF and Email export coming when Firebase backend is connected.</div>
-        <div class="section-header"><div class="section-title">Export format</div></div>
-        <div class="export-grid">
-
-          <!-- CSV — fully working -->
-          <div class="export-card selected" id="fmt-csv" onclick="selectFmt('csv')">
-            <div class="export-icon" style="background:#E1F5EE"><i class="ti ti-file-spreadsheet" style="font-size:22px;color:#0F6E56"></i></div>
-            <div style="font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px">
-              CSV file <span style="background:#E1F5EE;color:#085041;font-size:10px;padding:2px 6px;border-radius:20px;font-weight:500">✅ Working</span>
-            </div>
-            <div style="font-size:12px;color:var(--color-text-secondary)">Works with Excel, Google Sheets, QuickBooks and most accounting apps</div>
-          </div>
-
-          <!-- Excel — coming soon -->
-          <div class="export-card" id="fmt-xlsx" onclick="showComingSoon('Excel export')">
-            <div class="export-icon" style="background:#f8f8f8"><i class="ti ti-file-excel" style="font-size:22px;color:#9e9e9e"></i></div>
-            <div style="font-size:14px;font-weight:500;color:var(--color-text-tertiary);margin-bottom:4px">
-              Excel (.xlsx) <span style="background:#f1f0ee;color:#9e9e9e;font-size:10px;padding:2px 6px;border-radius:20px;font-weight:500">Coming soon</span>
-            </div>
-            <div style="font-size:12px;color:var(--color-text-tertiary)">Formatted spreadsheet with totals and category colors — requires Firebase backend</div>
-          </div>
-
-          <!-- PDF — coming soon -->
-          <div class="export-card" id="fmt-pdf" onclick="showComingSoon('PDF report')">
-            <div class="export-icon" style="background:#f8f8f8"><i class="ti ti-file-text" style="font-size:22px;color:#9e9e9e"></i></div>
-            <div style="font-size:14px;font-weight:500;color:var(--color-text-tertiary);margin-bottom:4px">
-              PDF report <span style="background:#f1f0ee;color:#9e9e9e;font-size:10px;padding:2px 6px;border-radius:20px;font-weight:500">Coming soon</span>
-            </div>
-            <div style="font-size:12px;color:var(--color-text-tertiary)">Print-ready expense report with your branding — requires Firebase backend</div>
-          </div>
-
-          <!-- Email — coming soon -->
-          <div class="export-card" id="fmt-email" onclick="showComingSoon('Email export')">
-            <div class="export-icon" style="background:#f8f8f8"><i class="ti ti-mail" style="font-size:22px;color:#9e9e9e"></i></div>
-            <div style="font-size:14px;font-weight:500;color:var(--color-text-tertiary);margin-bottom:4px">
-              Email directly <span style="background:#f1f0ee;color:#9e9e9e;font-size:10px;padding:2px 6px;border-radius:20px;font-weight:500">Coming soon</span>
-            </div>
-            <div style="font-size:12px;color:var(--color-text-tertiary)">Sends CSV to your email automatically — requires Firebase backend</div>
-          </div>
-
-        </div>
-        <div style="margin-top:1.25rem;display:flex;gap:10px">
-          <button class="btn success" onclick="runExport()"><i class="ti ti-download"></i> Export as CSV</button>
-          <button class="btn" onclick="showComingSoon('Share sheet')"><i class="ti ti-share"></i> Share sheet</button>
-        </div>
-        <div id="export-result" style="margin-top:1rem;padding:.875rem 1rem;background:#E1F5EE;border-radius:var(--border-radius-md);font-size:13px;color:#085041;display:none;align-items:center;gap:8px">
-          <i class="ti ti-circle-check"></i> <span id="export-msg"></span>
-        </div>
-      </div>
-
-      <!-- AI PIPELINE -->
-      <div class="panel" id="panel-pipeline">
-        <div class="step-flow">
-          <div class="step-node done"><i class="ti ti-upload"></i> Upload</div>
-          <div class="step-node done"><i class="ti ti-database"></i> Firebase</div>
-          <div class="step-node active"><i class="ti ti-cpu"></i> AI call</div>
-          <div class="step-node"><i class="ti ti-code"></i> Parse JSON</div>
-          <div class="step-node"><i class="ti ti-device-floppy"></i> Save DB</div>
-        </div>
-        <div class="pipeline-card">
-          <div class="pipeline-header"><div class="pipeline-icon" style="background:#EEEDFE"><i class="ti ti-upload" style="font-size:15px;color:#534AB7"></i></div><div class="pipeline-title">Step 1 — Image upload to Firebase Storage</div></div>
-          <div class="pipeline-desc">User taps "Scan" on mobile. The camera captures the receipt and uploads to <code>receipts/{userId}/{timestamp}.jpg</code>. A Cloud Function triggers on the new file.</div>
-        </div>
-        <div class="pipeline-card">
-          <div class="pipeline-header"><div class="pipeline-icon" style="background:#EEEDFE"><i class="ti ti-cpu" style="font-size:15px;color:#534AB7"></i></div><div class="pipeline-title">Step 2 — AI API call (GPT-4o mini)</div></div>
-          <div class="pipeline-desc">Function fetches a signed URL and sends it to the AI with a structured extraction prompt. The model reads even skewed or low-light images.</div>
-          <div class="json-block"><span class="json-key">"system"</span>: <span class="json-str">"Extract receipt data. Return ONLY JSON: merchant, date, total, tax, category."</span></div>
-        </div>
-        <div class="pipeline-card">
-          <div class="pipeline-header"><div class="pipeline-icon" style="background:#E1F5EE"><i class="ti ti-code" style="font-size:15px;color:#0F6E56"></i></div><div class="pipeline-title">Step 3 — Parsed JSON → Firestore</div></div>
-          <div class="pipeline-desc">AI returns a clean object; the function validates fields and writes to <code>receipts/{receiptId}</code>.</div>
-          <div class="json-block">{ <span class="json-key">"merchant"</span>: <span class="json-str">"Shake Shack"</span>, <span class="json-key">"total"</span>: <span class="json-num">42.80</span>, <span class="json-key">"category"</span>: <span class="json-str">"Food"</span> }</div>
-        </div>
-        <div class="pipeline-card">
-          <div class="pipeline-header"><div class="pipeline-icon" style="background:#FAEEDA"><i class="ti ti-database" style="font-size:15px;color:#633806"></i></div><div class="pipeline-title">Step 4 — Firestore schema</div></div>
-          <div class="pipeline-desc">Each receipt saved under <code>receipts/{receiptId}</code>. The <code>users/{userId}</code> doc tracks <code>scanCount</code> for free-tier enforcement.</div>
-          <div class="json-block"><span class="json-key">users/{userId}</span>: { plan, scanCount, email }<br><span class="json-key">receipts/{receiptId}</span>: { userId, imageUrl, merchantName, amount, date, tax, category, createdAt }</div>
-        </div>
-      </div>
-
-      <!-- SETTINGS -->
-      <div class="panel" id="panel-settings">
-        <div class="settings-group">
-          <div class="settings-group-title">Notifications</div>
-          <div class="setting-row">
-            <div class="setting-info"><div class="setting-label">Weekly summary email</div><div class="setting-desc">Get a digest of your expenses every Monday morning</div></div>
-            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
-          </div>
-          <div class="setting-row">
-            <div class="setting-info"><div class="setting-label">Scan limit warning</div><div class="setting-desc">Alert when you've used 80% of your monthly scans</div></div>
-            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
-          </div>
-          <div class="setting-row">
-            <div class="setting-info"><div class="setting-label">Export confirmation</div><div class="setting-desc">Notify when an export file is ready to download</div></div>
-            <div class="toggle" onclick="this.classList.toggle('on')"></div>
-          </div>
-        </div>
-        <div class="settings-group">
-          <div class="settings-group-title">AI & Extraction</div>
-          <div class="setting-row">
-            <div class="setting-info"><div class="setting-label">Auto-categorise receipts</div><div class="setting-desc">Let the AI automatically assign a category on every scan</div></div>
-            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
-          </div>
-          <div class="setting-row">
-            <div class="setting-info"><div class="setting-label">Save image to library</div><div class="setting-desc">Keep a copy of each receipt photo in Firebase Storage</div></div>
-            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
-          </div>
-          <div class="setting-row">
-            <div class="setting-info"><div class="setting-label">Confidence threshold alerts</div><div class="setting-desc">Flag extractions where AI confidence is below 85%</div></div>
-            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
-          </div>
-        </div>
-        <div class="settings-group">
-          <div class="settings-group-title">Account</div>
-          <div class="setting-row">
-            <div class="setting-info"><div class="setting-label">Default export format</div><div class="setting-desc">Pre-select your preferred download format</div></div>
-            <select style="font-size:13px;padding:5px 8px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);font-family:var(--font-sans);cursor:pointer">
-              <option>CSV</option><option>Excel (.xlsx)</option><option>PDF report</option>
-            </select>
-          </div>
-          <div class="setting-row">
-            <div class="setting-info"><div class="setting-label">Currency</div><div class="setting-desc">Display currency for amounts and totals</div></div>
-            <select style="font-size:13px;padding:5px 8px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);font-family:var(--font-sans);cursor:pointer">
-              <option>USD ($)</option><option>BDT (৳)</option><option>EUR (€)</option><option>GBP (£)</option>
-            </select>
-          </div>
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn primary" onclick="showToast('Settings saved')"><i class="ti ti-device-floppy"></i> Save settings</button>
-          <button class="btn" onclick="confirmLogout()"><i class="ti ti-logout"></i> Log out</button>
-          <button class="btn danger" onclick="confirmDeleteAccount()"><i class="ti ti-trash"></i> Delete account</button>
-        </div>
-      </div>
-
-      <!-- ABOUT -->
-      <div class="panel" id="panel-about">
-        <div class="about-hero">
-          <div class="dev-card">
-            <div class="dev-pic">DN</div>
-            <div>
-              <div class="dev-name">Dev Nahin</div>
-              <div class="dev-role">Founder & Developer · Paperless</div>
-              <div class="dev-tags">
-                <span class="dev-tag">Full-stack</span>
-                <span class="dev-tag">AI/ML</span>
-                <span class="dev-tag">Micro-SaaS</span>
-                <span class="dev-tag">Flutter</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="about-section">
-          <div class="about-section-title">About the developer</div>
-          <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7;margin-bottom:.75rem">Dev Nahin built Paperless to solve a real pain point: freelancers and small business owners spending hours manually entering receipts into spreadsheets at tax time. The app uses AI to turn a photo into a clean expense record in under three seconds.</p>
-          <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.7">Paperless is an indie Micro-SaaS product — designed, engineered, and shipped solo, from backend Cloud Functions to mobile UI.</p>
-        </div>
-
-        <div class="about-section">
-          <div class="about-section-title">Tech stack</div>
-          <div class="tech-grid">
-            <div class="tech-chip"><div class="tech-chip-label">Flutter</div><div class="tech-chip-sub">Mobile UI</div></div>
-            <div class="tech-chip"><div class="tech-chip-label">Firebase</div><div class="tech-chip-sub">Auth + DB + Storage</div></div>
-            <div class="tech-chip"><div class="tech-chip-label">GPT-4o mini</div><div class="tech-chip-sub">OCR extraction</div></div>
-            <div class="tech-chip"><div class="tech-chip-label">Cloud Functions</div><div class="tech-chip-sub">AI pipeline</div></div>
-            <div class="tech-chip"><div class="tech-chip-label">RevenueCat</div><div class="tech-chip-sub">Subscriptions</div></div>
-            <div class="tech-chip"><div class="tech-chip-label">Stripe</div><div class="tech-chip-sub">Payments</div></div>
-          </div>
-        </div>
-
-        <div class="about-section">
-          <div class="about-section-title">Product info</div>
-          <div class="info-list">
-            <div class="info-row"><div class="info-icon" style="background:#EEEDFE"><i class="ti ti-apps" style="color:#534AB7;font-size:15px"></i></div><div style="flex:1"><div class="info-label">App name</div><div class="info-value">Paperless</div></div></div>
-            <div class="info-row"><div class="info-icon" style="background:#E1F5EE"><i class="ti ti-tag" style="color:#0F6E56;font-size:15px"></i></div><div style="flex:1"><div class="info-label">Version</div><div class="info-value">1.0.0 MVP</div></div></div>
-            <div class="info-row"><div class="info-icon" style="background:#FAEEDA"><i class="ti ti-calendar" style="color:#633806;font-size:15px"></i></div><div style="flex:1"><div class="info-label">Released</div><div class="info-value">June 2026</div></div></div>
-            <div class="info-row"><div class="info-icon" style="background:#E6F1FB"><i class="ti ti-world" style="color:#185FA5;font-size:15px"></i></div><div style="flex:1"><div class="info-label">Platforms</div><div class="info-value">iOS · Android · Web</div></div></div>
-            <div class="info-row"><div class="info-icon" style="background:#EEEDFE"><i class="ti ti-user" style="color:#534AB7;font-size:15px"></i></div><div style="flex:1"><div class="info-label">Built by</div><div class="info-value" style="color:#534AB7">Dev Nahin</div></div></div>
-          </div>
-        </div>
-
-        <div class="about-section">
-          <div class="about-section-title">Changelog</div>
-          <div class="changelog-list">
-            <div class="changelog-item"><div class="changelog-dot" style="background:#534AB7"></div><div><div class="changelog-ver">v1.0.0 · Jun 2026</div><div class="changelog-desc">Initial MVP launch — scan, extract, dashboard, and CSV export</div></div></div>
-            <div class="changelog-item"><div class="changelog-dot" style="background:#0F6E56"></div><div><div class="changelog-ver">v0.9.0 · May 2026</div><div class="changelog-desc">AI pipeline stable, Firestore schema finalised, RevenueCat integrated</div></div></div>
-            <div class="changelog-item"><div class="changelog-dot" style="background:#633806"></div><div><div class="changelog-ver">v0.5.0 · Apr 2026</div><div class="changelog-desc">Camera UI and Firebase Storage upload working on both platforms</div></div></div>
-          </div>
-        </div>
-
-        <div class="about-section">
-          <div class="about-section-title">Contact & links</div>
-          <div class="contact-btns">
-            <button class="btn primary" onclick="showToast('Opening devnahin.com …')"><i class="ti ti-world"></i> devnahin.com</button>
-            <button class="btn" onclick="showToast('Opening GitHub …')"><i class="ti ti-brand-github"></i> GitHub</button>
-            <button class="btn" onclick="showToast('Opening Twitter …')"><i class="ti ti-brand-x"></i> @devnahin</button>
-            <button class="btn" onclick="showToast('Opening email …')"><i class="ti ti-mail"></i> hello@devnahin.com</button>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- EDIT MODAL -->
-  <div class="modal-bg" id="edit-modal" onclick="if(event.target===this)closeModal()">
-    <div class="modal">
-      <div class="modal-head"><div class="modal-title">Edit receipt</div><button class="btn" onclick="closeModal()" style="padding:4px 8px"><i class="ti ti-x"></i></button></div>
-      <div class="modal-body">
-        <div class="field"><label>Merchant name</label><input id="f-merchant" type="text"></div>
-        <div class="field"><label>Date</label><input id="f-date" type="date"></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <div class="field"><label>Total ($)</label><input id="f-total" type="number" step="0.01"></div>
-          <div class="field"><label>Tax ($)</label><input id="f-tax" type="number" step="0.01"></div>
-        </div>
-        <div class="field"><label>Category</label><select id="f-cat"><option>Food</option><option>Travel</option><option>Software</option><option>Office</option><option>Other</option></select></div>
-        <div class="field"><label>Notes</label><input id="f-notes" type="text" placeholder="e.g. Client dinner, team lunch…"></div>
-        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:.5rem">
-          <button class="btn danger" onclick="deleteReceiptEntry()"><i class="ti ti-trash"></i> Delete</button>
-          <button class="btn" onclick="closeModal()">Cancel</button>
-          <button class="btn primary" onclick="saveEdit()"><i class="ti ti-device-floppy"></i> Save changes</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SCAN MODAL -->
-  <div class="modal-bg" id="scan-modal" onclick="if(event.target===this)closeScanModal()">
-    <div class="modal">
-      <div class="modal-head"><div class="modal-title">AI extraction result</div><button class="btn" onclick="closeScanModal()" style="padding:4px 8px"><i class="ti ti-x"></i></button></div>
-      <div class="modal-body" id="scan-modal-body"></div>
-    </div>
-  </div>
-
-  <div class="toast" id="toast"></div>
+  <button class="topbar-btn" onclick="switchPanel('scan')" title="Scan"><i class="ti ti-camera"></i></button>
+  <button class="topbar-btn" onclick="switchPanel('export')" title="Export"><i class="ti ti-download"></i></button>
 </div>
 
+<!-- CONTENT -->
+<div class="content-area">
+
+  <!-- DASHBOARD -->
+  <div class="panel active" id="panel-dashboard">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label"><i class="ti ti-receipt-2"></i> Receipts</div>
+        <div class="stat-value" id="stat-count">0</div>
+        <div class="stat-sub">This month</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label"><i class="ti ti-currency-dollar"></i> Total spent</div>
+        <div class="stat-value" id="stat-total">$0.00</div>
+        <div class="stat-sub">All categories</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label"><i class="ti ti-scan"></i> Scans left</div>
+        <div class="stat-value" id="stat-left">10</div>
+        <div class="stat-sub">Free tier</div>
+        <div class="limit-track"><div class="limit-fill" id="limit-fill"></div></div>
+        <div class="limit-text" id="limit-text">0 of 10 used</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label"><i class="ti ti-tag"></i> Top category</div>
+        <div class="stat-value" style="font-size:14px;padding-top:4px"><span class="cat cat-other" id="stat-cat">N/A</span></div>
+        <div class="stat-sub" id="stat-cat-amt">$0.00 this month</div>
+      </div>
+    </div>
+
+    <div class="sec-header">
+      <div class="sec-title">Recent receipts</div>
+      <button class="btn" style="font-size:12px;padding:5px 10px" onclick="switchPanel('receipts')">View all</button>
+    </div>
+
+    <div class="receipt-list" id="dash-receipt-list">
+      <!-- Populated dynamically -->
+    </div>
+
+    <button class="btn primary full" onclick="switchPanel('scan')">
+      <i class="ti ti-camera"></i> Scan a new receipt
+    </button>
+  </div>
+
+  <!-- SCAN -->
+  <div class="panel" id="panel-scan">
+    <div class="scan-area" onclick="triggerScan()" role="button" tabindex="0">
+      <div class="scan-icon-wrap"><i class="ti ti-camera"></i></div>
+      <div style="font-size:15px;font-weight:500;color:var(--text);margin-bottom:6px">Snap a receipt</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:1.125rem">Take a photo or upload from your gallery</div>
+      <div style="display:flex;gap:8px;justify-content:center">
+        <button class="btn primary" onclick="event.stopPropagation();triggerScan()"><i class="ti ti-camera"></i> Camera</button>
+        <button class="btn" onclick="event.stopPropagation();triggerUpload()"><i class="ti ti-upload"></i> Upload</button>
+      </div>
+    </div>
+
+    <div class="or-div">or try a sample</div>
+
+    <div class="sample-grid">
+      <button class="sample-card" onclick="runDemo('restaurant')">
+        <div class="sample-icon" style="background:var(--green-light)"><i class="ti ti-tools-kitchen-2" style="color:var(--green)"></i></div>
+        <div class="sample-label">Restaurant</div>
+        <div class="sample-sub">Dine-in</div>
+      </button>
+      <button class="sample-card" onclick="runDemo('hotel')">
+        <div class="sample-icon" style="background:var(--blue-light)"><i class="ti ti-building" style="color:var(--blue)"></i></div>
+        <div class="sample-label">Hotel</div>
+        <div class="sample-sub">Business stay</div>
+      </button>
+      <button class="sample-card" onclick="runDemo('software')">
+        <div class="sample-icon" style="background:var(--purple-light)"><i class="ti ti-device-laptop" style="color:var(--purple)"></i></div>
+        <div class="sample-label">Software</div>
+        <div class="sample-sub">SaaS invoice</div>
+      </button>
+    </div>
+  </div>
+
+  <!-- RECEIPTS -->
+  <div class="panel" id="panel-receipts">
+    <div class="search-wrap">
+      <div class="search-box">
+        <i class="ti ti-search"></i>
+        <input type="text" placeholder="Search receipts…" oninput="filterReceipts(this.value)">
+      </div>
+    </div>
+    <div class="sec-header">
+      <div class="sec-title" id="receipts-count">0 receipts</div>
+    </div>
+    <div class="receipt-list" id="full-receipt-list">
+      <!-- Populated dynamically -->
+    </div>
+  </div>
+
+  <!-- EXPORT -->
+  <div class="panel" id="panel-export">
+    <div style="font-size:13px;color:var(--text2);margin-bottom:1rem;line-height:1.6">Export your receipts. Excel, PDF and Email require Firebase backend.</div>
+    <div class="export-grid">
+      <div class="export-card selected" id="fmt-csv" onclick="selectFmt('csv')">
+        <div class="export-icon" style="background:var(--green-light)"><i class="ti ti-file-spreadsheet" style="font-size:20px;color:var(--green)"></i></div>
+        <div class="export-title">CSV <span style="background:var(--green-light);color:var(--green);font-size:9px;padding:1px 5px;border-radius:20px">✅ Works</span></div>
+        <div class="export-sub">Excel, Sheets, QuickBooks</div>
+      </div>
+      <div class="export-card disabled" onclick="showComingSoon('Excel export')">
+        <div class="export-icon" style="background:var(--bg2)"><i class="ti ti-file-excel" style="font-size:20px;color:var(--text3)"></i></div>
+        <div class="export-title" style="color:var(--text3)">Excel <span style="background:var(--bg2);color:var(--text3);font-size:9px;padding:1px 5px;border-radius:20px">Soon</span></div>
+        <div class="export-sub" style="color:var(--text3)">Needs Firebase backend</div>
+      </div>
+      <div class="export-card disabled" onclick="showComingSoon('PDF report')">
+        <div class="export-icon" style="background:var(--bg2)"><i class="ti ti-file-text" style="font-size:20px;color:var(--text3)"></i></div>
+        <div class="export-title" style="color:var(--text3)">PDF <span style="background:var(--bg2);color:var(--text3);font-size:9px;padding:1px 5px;border-radius:20px">Soon</span></div>
+        <div class="export-sub" style="color:var(--text3)">Needs Firebase backend</div>
+      </div>
+      <div class="export-card disabled" onclick="showComingSoon('Email export')">
+        <div class="export-icon" style="background:var(--bg2)"><i class="ti ti-mail" style="font-size:20px;color:var(--text3)"></i></div>
+        <div class="export-title" style="color:var(--text3)">Email <span style="background:var(--bg2);color:var(--text3);font-size:9px;padding:1px 5px;border-radius:20px">Soon</span></div>
+        <div class="export-sub" style="color:var(--text3)">Needs Firebase backend</div>
+      </div>
+    </div>
+    <button class="btn success full" onclick="runExport()"><i class="ti ti-download"></i> Export receipts as CSV</button>
+    <div class="export-ok" id="export-result">
+      <i class="ti ti-circle-check"></i><span id="export-msg"></span>
+    </div>
+  </div>
+
+  <!-- MORE (Settings + About) -->
+  <div class="panel" id="panel-more">
+
+    <!-- Quick actions -->
+    <div class="receipt-list" style="margin-bottom:1rem">
+      <button class="receipt-row" onclick="switchPanel('pipeline')" style="width:100%;text-align:left;border:none;cursor:pointer">
+        <div class="receipt-icon" style="background:var(--purple-light)"><i class="ti ti-cpu" style="color:var(--purple)"></i></div>
+        <div class="receipt-info"><div class="receipt-merchant">AI pipeline</div><div class="receipt-meta">How extraction works</div></div>
+        <i class="ti ti-chevron-right" style="color:var(--text3)"></i>
+      </button>
+      <button class="receipt-row" onclick="switchPanel('about')" style="width:100%;text-align:left;border:none;cursor:pointer">
+        <div class="receipt-icon" style="background:var(--purple-light)"><i class="ti ti-info-circle" style="color:var(--purple)"></i></div>
+        <div class="receipt-info"><div class="receipt-merchant">About & developer</div><div class="receipt-meta">Dev Nahin · v1.0.0</div></div>
+        <i class="ti ti-chevron-right" style="color:var(--text3)"></i>
+      </button>
+    </div>
+
+    <!-- Settings -->
+    <div class="settings-group">
+      <div class="sg-title">Notifications</div>
+      <div class="setting-row">
+        <div class="setting-info"><div class="setting-label">Weekly summary email</div><div class="setting-desc">Expense digest every Monday</div></div>
+        <button class="toggle on" id="set-notif-weekly" onclick="toggleSetting('notif-weekly')"></button>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info"><div class="setting-label">Scan limit warning</div><div class="setting-desc">Alert at 80% of monthly scans</div></div>
+        <button class="toggle on" id="set-notif-limit" onclick="toggleSetting('notif-limit')"></button>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <div class="sg-title">AI & Extraction</div>
+      <div class="setting-row">
+        <div class="setting-info"><div class="setting-label">Auto-categorise</div><div class="setting-desc">AI assigns category on every scan</div></div>
+        <button class="toggle on" id="set-ai-cat" onclick="toggleSetting('ai-cat')"></button>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info"><div class="setting-label">Save image to library</div><div class="setting-desc">Keep receipt photo in storage</div></div>
+        <button class="toggle on" id="set-save-img" onclick="toggleSetting('save-img')"></button>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <div class="sg-title">Account</div>
+      <div class="setting-row">
+        <div class="setting-info"><div class="setting-label">Currency</div></div>
+        <select class="sel-input" id="set-currency" onchange="saveSelectionSetting('currency', this.value)">
+          <option value="USD">USD ($)</option><option value="BDT">BDT (৳)</option><option value="EUR">EUR (€)</option><option value="GBP">GBP (£)</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info"><div class="setting-label">Default export</div></div>
+        <select class="sel-input" id="set-export" onchange="saveSelectionSetting('export', this.value)">
+          <option value="CSV">CSV</option><option value="Excel">Excel</option><option value="PDF">PDF</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn primary" onclick="showToast('Settings saved ✓')"><i class="ti ti-device-floppy"></i> Save</button>
+      <button class="btn" onclick="confirmLogout()"><i class="ti ti-logout"></i> Log out</button>
+      <button class="btn danger" onclick="confirmDeleteAccount()"><i class="ti ti-trash"></i> Delete account</button>
+    </div>
+  </div>
+
+  <!-- AI PIPELINE -->
+  <div class="panel" id="panel-pipeline">
+    <button class="btn" style="margin-bottom:1rem" onclick="switchPanel('more')"><i class="ti ti-arrow-left"></i> Back</button>
+    <div class="step-flow">
+      <div class="step-node done"><i class="ti ti-upload"></i>Upload</div>
+      <div class="step-node done"><i class="ti ti-database"></i>Firebase</div>
+      <div class="step-node active"><i class="ti ti-cpu"></i>AI call</div>
+      <div class="step-node"><i class="ti ti-code"></i>Parse</div>
+      <div class="step-node"><i class="ti ti-device-floppy"></i>Save</div>
+    </div>
+    <div class="pipe-card">
+      <div class="pipe-head"><div class="pipe-icon" style="background:var(--purple-light)"><i class="ti ti-upload" style="font-size:14px;color:var(--purple)"></i></div><div class="pipe-title">Step 1 — Upload to Firebase Storage</div></div>
+      <div class="pipe-desc">Camera captures the receipt → uploaded to <code>receipts/{userId}/{timestamp}.jpg</code> → Cloud Function triggers automatically.</div>
+    </div>
+    <div class="pipe-card">
+      <div class="pipe-head"><div class="pipe-icon" style="background:var(--purple-light)"><i class="ti ti-cpu" style="font-size:14px;color:var(--purple)"></i></div><div class="pipe-title">Step 2 — GPT-4o mini AI call</div></div>
+      <div class="pipe-desc">Signed URL sent to AI with secret extraction prompt. Reads skewed, crumpled, or low-light photos.</div>
+      <div class="json-block"><span class="jk">"system"</span>: <span class="js">"Extract receipt data. Return ONLY JSON."</span></div>
+    </div>
+    <div class="pipe-card">
+      <div class="pipe-head"><div class="pipe-icon" style="background:var(--green-light)"><i class="ti ti-code" style="font-size:14px;color:var(--green)"></i></div><div class="pipe-title">Step 3 — Parsed JSON → Firestore</div></div>
+      <div class="pipe-desc">AI returns clean object → validated → written to <code>receipts/{receiptId}</code>.</div>
+      <div class="json-block">{ <span class="jk">"merchant"</span>: <span class="js">"Shake Shack"</span>, <span class="jk">"total"</span>: <span class="jn">42.80</span>, <span class="jk">"category"</span>: <span class="js">"Food"</span> }</div>
+    </div>
+    <div class="pipe-card">
+      <div class="pipe-head"><div class="pipe-icon" style="background:#FAEEDA"><i class="ti ti-database" style="font-size:14px;color:#633806"></i></div><div class="pipe-title">Step 4 — Firestore schema</div></div>
+      <div class="pipe-desc">Each receipt saved under <code>receipts/{receiptId}</code>. User doc tracks <code>scanCount</code> for free-tier enforcement.</div>
+      <div class="json-block"><span class="jk">users/{userId}</span>: { plan, scanCount, email }<br><span class="jk">receipts/{id}</span>: { userId, imageUrl, merchantName, amount, date, tax, category, createdAt }</div>
+    </div>
+  </div>
+
+  <!-- ABOUT -->
+  <div class="panel" id="panel-about">
+    <button class="btn" style="margin-bottom:1rem" onclick="switchPanel('more')"><i class="ti ti-arrow-left"></i> Back</button>
+    <div class="about-hero">
+      <div class="dev-card">
+        <div class="dev-pic">DN</div>
+        <div>
+          <div class="dev-name">Dev Nahin</div>
+          <div class="dev-role">Founder & Developer · Paperless</div>
+          <div class="dev-tags">
+            <span class="dev-tag">Full-stack</span>
+            <span class="dev-tag">AI/ML</span>
+            <span class="dev-tag">Micro-SaaS</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-bottom:1rem">
+      <div class="about-sec-title">About</div>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7">Dev Nahin built Paperless to solve a real pain point — freelancers spending hours manually entering receipts at tax time. AI turns any photo into a clean expense record in under 3 seconds.</p>
+    </div>
+    <div class="about-sec-title">Tech stack</div>
+    <div class="tech-grid">
+      <div class="tech-chip"><div class="tech-name">Flutter</div><div class="tech-sub">Mobile UI</div></div>
+      <div class="tech-chip"><div class="tech-name">Firebase</div><div class="tech-sub">Auth + DB</div></div>
+      <div class="tech-chip"><div class="tech-name">GPT-4o mini</div><div class="tech-sub">AI OCR</div></div>
+      <div class="tech-chip"><div class="tech-name">Cloud Fns</div><div class="tech-sub">Pipeline</div></div>
+      <div class="tech-chip"><div class="tech-name">RevenueCat</div><div class="tech-sub">Billing</div></div>
+      <div class="tech-chip"><div class="tech-name">Stripe</div><div class="tech-sub">Payments</div></div>
+    </div>
+    <div class="about-sec-title">Product info</div>
+    <div class="info-list">
+      <div class="info-row"><div class="info-icon" style="background:var(--purple-light)"><i class="ti ti-apps" style="color:var(--purple)"></i></div><div><div class="info-label">App name</div><div class="info-value">Paperless</div></div></div>
+      <div class="info-row"><div class="info-icon" style="background:var(--green-light)"><i class="ti ti-tag" style="color:var(--green)"></i></div><div><div class="info-label">Version</div><div class="info-value">1.0.0 MVP</div></div></div>
+      <div class="info-row"><div class="info-icon" style="background:#FAEEDA"><i class="ti ti-calendar" style="color:#633806"></i></div><div><div class="info-label">Released</div><div class="info-value">June 2026</div></div></div>
+      <div class="info-row"><div class="info-icon" style="background:var(--blue-light)"><i class="ti ti-world" style="color:var(--blue)"></i></div><div><div class="info-label">Platforms</div><div class="info-value">iOS · Android · Web</div></div></div>
+      <div class="info-row"><div class="info-icon" style="background:var(--purple-light)"><i class="ti ti-user" style="color:var(--purple)"></i></div><div><div class="info-label">Built by</div><div class="info-value" style="color:var(--purple)">Dev Nahin</div></div></div>
+    </div>
+    <div class="about-sec-title">Changelog</div>
+    <div class="changelog-list">
+      <div class="cl-item"><div class="cl-dot" style="background:var(--purple)"></div><div><div class="cl-ver">v1.0.0 · Jun 2026</div><div class="cl-desc">MVP launch — scan, extract, dashboard, CSV export</div></div></div>
+      <div class="cl-item"><div class="cl-dot" style="background:var(--green)"></div><div><div class="cl-ver">v0.9.0 · May 2026</div><div class="cl-desc">AI pipeline stable, Firestore schema, RevenueCat</div></div></div>
+      <div class="cl-item"><div class="cl-dot" style="background:#633806"></div><div><div class="cl-ver">v0.5.0 · Apr 2026</div><div class="cl-desc">Camera UI and Firebase Storage working</div></div></div>
+    </div>
+    <div class="about-sec-title">Contact</div>
+    <div class="contact-row">
+      <button class="btn primary" onclick="showToast('Opening devnahin.com…')"><i class="ti ti-world"></i> devnahin.com</button>
+      <button class="btn" onclick="showToast('Opening GitHub…')"><i class="ti ti-brand-github"></i> GitHub</button>
+      <button class="btn" onclick="showToast('Opening Twitter…')"><i class="ti ti-brand-x"></i> @devnahin</button>
+    </div>
+  </div>
+
+</div><!-- /content-area -->
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="bn-item active" data-panel="dashboard" onclick="switchPanel('dashboard',this)">
+    <i class="ti ti-layout-dashboard"></i>Home
+  </button>
+  <button class="bn-item" data-panel="scan" onclick="switchPanel('scan',this)">
+    <i class="ti ti-camera"></i>Scan
+  </button>
+  <button class="bn-item" data-panel="receipts" onclick="switchPanel('receipts',this)">
+    <i class="ti ti-receipt"></i>Receipts
+  </button>
+  <button class="bn-item" data-panel="export" onclick="switchPanel('export',this)">
+    <i class="ti ti-download"></i>Export
+  </button>
+  <button class="bn-item" data-panel="more" onclick="switchPanel('more',this)">
+    <i class="ti ti-dots"></i>More
+  </button>
+</nav>
+
+<!-- EDIT MODAL -->
+<div class="modal-bg" id="edit-modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Edit receipt</div>
+    <div class="field"><label>Merchant name</label><input id="f-merchant" type="text"></div>
+    <div class="field"><label>Date</label><input id="f-date" type="date"></div>
+    <div class="two-col">
+      <div class="field"><label>Total</label><input id="f-total" type="number" step="0.01"></div>
+      <div class="field"><label>Tax</label><input id="f-tax" type="number" step="0.01"></div>
+    </div>
+    <div class="field"><label>Category</label>
+      <select id="f-cat"><option>Food</option><option>Travel</option><option>Software</option><option>Office</option><option>Other</option></select>
+    </div>
+    <div class="field"><label>Notes</label><input id="f-notes" type="text" placeholder="e.g. Client dinner…"></div>
+    <div class="modal-btns">
+      <button class="btn danger" onclick="deleteReceiptEntry()"><i class="ti ti-trash"></i></button>
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn primary" onclick="saveEdit()"><i class="ti ti-device-floppy"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCAN MODAL -->
+<div class="modal-bg" id="scan-modal" onclick="if(event.target===this)closeScanModal()">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div id="scan-modal-body"></div>
+  </div>
+</div>
+
+<!-- COMING SOON POPUP -->
+<div class="popup-bg" id="cs-popup">
+  <div class="popup">
+    <div class="popup-icon" style="background:var(--purple-light)"><i class="ti ti-clock" style="color:var(--purple)"></i></div>
+    <div class="popup-title" id="cs-title">Coming soon</div>
+    <div class="popup-desc" id="cs-desc">This feature requires the Firebase backend. Available in the full launch version.</div>
+    <div class="popup-btns">
+      <button class="btn" onclick="document.getElementById('cs-popup').classList.remove('open')">Got it</button>
+      <button class="btn primary" onclick="document.getElementById('cs-popup').classList.remove('open');runExport()">Use CSV</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOGOUT POPUP -->
+<div class="popup-bg" id="logout-popup">
+  <div class="popup">
+    <div class="popup-icon" style="background:var(--purple-light)"><i class="ti ti-logout" style="color:var(--purple)"></i></div>
+    <div class="popup-title">Log out?</div>
+    <div class="popup-desc">You will return to the login screen. Your receipts will be here when you log back in.</div>
+    <div class="popup-btns">
+      <button class="btn" onclick="document.getElementById('logout-popup').classList.remove('open')">Cancel</button>
+      <button class="btn primary" onclick="runLogout()">Log out</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE ACCOUNT POPUP -->
+<div class="popup-bg" id="delete-popup">
+  <div class="popup">
+    <div class="popup-icon" style="background:#fef2f2"><i class="ti ti-trash" style="color:#b91c1c"></i></div>
+    <div class="popup-title">Delete account?</div>
+    <div class="popup-desc" id="delete-desc">This permanently deletes your account and all receipts. This cannot be undone.</div>
+    <div class="popup-btns">
+      <button class="btn" onclick="document.getElementById('delete-popup').classList.remove('open')">Cancel</button>
+      <button class="btn danger" onclick="runDeleteEverything()">Delete everything</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-card">
+    <div style="text-align:center;margin-bottom:1.5rem">
+      <div style="width:52px;height:52px;background:var(--purple);border-radius:13px;display:flex;align-items:center;justify-content:center;margin:0 auto .875rem">
+        <i class="ti ti-scan" style="font-size:26px;color:var(--purple-light)"></i>
+      </div>
+      <div style="font-size:20px;font-weight:600;color:var(--text)">Paperless</div>
+      <div style="font-size:12px;color:var(--text3);margin-top:3px">by Dev Nahin</div>
+    </div>
+    <div class="field"><label>Email</label><input id="login-email" type="email" placeholder="you@example.com"></div>
+    <div class="field"><label>Password</label><input id="login-pw" type="password" placeholder="••••••••"></div>
+    <div id="auth-error" style="display:none;background:#fef2f2;border-radius:8px;padding:.625rem .875rem;margin-bottom:.75rem;font-size:12px;color:#b91c1c"></div>
+    <div id="auth-loading" style="display:none;text-align:center;padding:.75rem;font-size:13px;color:var(--text2)"><div class="dot-pulse" style="justify-content:center;margin-bottom:.4rem"><span></span><span></span><span></span></div>Signing you in...</div>
+    <div id="auth-form-wrap">
+      <button class="btn primary full" style="margin-bottom:.625rem" onclick="runEmailLogin()">Log in</button>
+      <button class="btn full" onclick="runGoogleLogin()">
+        <svg width="15" height="15" viewBox="0 0 48 48" style="margin-right:4px;flex-shrink:0"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        Continue with Google
+      </button>
+    </div>
+    <div style="text-align:center;margin-top:.875rem;font-size:12px;color:var(--text3)">
+      No account? <span onclick="showSignup()" style="color:var(--purple);cursor:pointer;font-weight:500">Sign up free</span>
+    </div>
+  </div>
+</div>
+
+<!-- SIGNUP SCREEN -->
+<div class="signup-screen" id="signup-screen">
+  <div class="signup-card">
+    <div style="text-align:center;margin-bottom:1.5rem">
+      <div style="width:52px;height:52px;background:var(--purple);border-radius:13px;display:flex;align-items:center;justify-content:center;margin:0 auto .875rem">
+        <i class="ti ti-scan" style="font-size:26px;color:var(--purple-light)"></i>
+      </div>
+      <div style="font-size:20px;font-weight:600;color:var(--text)">Create Account</div>
+      <div style="font-size:12px;color:var(--text3);margin-top:3px">Join Paperless by Dev Nahin</div>
+    </div>
+    <div class="field"><label>Full Name</label><input id="signup-name" type="text" placeholder="John Doe"></div>
+    <div class="field"><label>Email Address</label><input id="signup-email" type="email" placeholder="you@example.com"></div>
+    <div class="field"><label>Password</label><input id="signup-pw" type="password" placeholder="••••••••"></div>
+    <div class="field"><label>Confirm Password</label><input id="signup-pw-confirm" type="password" placeholder="••••••••"></div>
+    <div id="signup-error" style="display:none;background:#fef2f2;border-radius:8px;padding:.625rem .875rem;margin-bottom:.75rem;font-size:12px;color:#b91c1c"></div>
+    <div id="signup-loading" style="display:none;text-align:center;padding:.75rem;font-size:13px;color:var(--text2)"><div class="dot-pulse" style="justify-content:center;margin-bottom:.4rem"><span></span><span></span><span></span></div>Creating account...</div>
+    <div id="signup-form-wrap">
+      <button class="btn primary full" style="margin-bottom:.625rem" onclick="runEmailSignup()">Sign up</button>
+      <button class="btn full" onclick="runGoogleLogin()">
+        <svg width="15" height="15" viewBox="0 0 48 48" style="margin-right:4px;flex-shrink:0"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        Sign up with Google
+      </button>
+    </div>
+    <div style="text-align:center;margin-top:.875rem;font-size:12px;color:var(--text3)">
+      Already have an account? <span onclick="showLogin()" style="color:var(--purple);cursor:pointer;font-weight:500">Log in</span>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
 <script>
-const panels=['dashboard','scan','receipts','export','pipeline','settings','about'];
-const titles={dashboard:'Dashboard',scan:'Scan a receipt',receipts:'My receipts',export:'Export expenses',pipeline:'AI pipeline',settings:'Settings',about:'About & developer'};
-const receipts=[
-  {merchant:'Shake Shack',note:'Order #4419',date:'2026-06-14',total:'42.80',tax:'3.80',cat:'Food'},
-  {merchant:'Figma',note:'Monthly subscription',date:'2026-06-12',total:'15.00',tax:'0.00',cat:'Software'},
-  {merchant:'Grab — Airport',note:'Trip to SGX',date:'2026-06-10',total:'183.60',tax:'16.20',cat:'Travel'}
+// ── DATA PERSISTENCE INITIALIZATION ───────────
+let receipts = [];
+let settings = {
+  'notif-weekly': true,
+  'notif-limit': true,
+  'ai-cat': true,
+  'save-img': true,
+  'currency': 'USD',
+  'export': 'CSV'
+};
+
+const defaultReceipts = [
+  {id: 1, merchant:'Shake Shack',note:'Order #4419',date:'2026-06-14',total:'42.80',tax:'3.80',cat:'Food'},
+  {id: 2, merchant:'Figma',note:'Monthly subscription',date:'2026-06-12',total:'15.00',tax:'0.00',cat:'Software'},
+  {id: 3, merchant:'Grab — Airport',note:'Trip to SGX',date:'2026-06-10',total:'183.60',tax:'16.20',cat:'Travel'}
 ];
-// Demo data lives inside runDemo() below
-function switchPanel(id,el){
-  panels.forEach(p=>{
-    document.getElementById('panel-'+p).classList.remove('active');
-    const n=document.querySelector('[data-panel='+p+']');
-    if(n)n.classList.remove('active');
-  });
-  document.getElementById('panel-'+id).classList.add('active');
-  if(el)el.classList.add('active');
-  document.getElementById('topbar-title').textContent=titles[id];
+
+const currencySymbols = {
+  USD: '$',
+  BDT: '৳',
+  EUR: '€',
+  GBP: '£'
+};
+
+const catClass={Food:'cat-food',Travel:'cat-travel',Software:'cat-tech',Office:'cat-office',Other:'cat-other'};
+const catIcon={Food:'ti-tools-kitchen-2',Travel:'ti-car',Software:'ti-device-laptop',Office:'ti-building',Other:'ti-receipt'};
+const catBg={Food:'var(--green-light)',Travel:'var(--blue-light)',Software:'var(--purple-light)',Office:'#FAEEDA',Other:'#f1f0ee'};
+const catColor={Food:'var(--green)',Travel:'var(--blue)',Software:'var(--purple)',Office:'#633806',Other:'#444'};
+
+const panels=['dashboard','scan','receipts','export','more','pipeline','about'];
+
+// ── FIREBASE INIT ──────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyC8c91MqQwjgJzSM0TSTBXgAa_ZBk4TCUQ",
+  authDomain: "paperless-app-deb17.firebaseapp.com",
+  projectId: "paperless-app-deb17",
+  storageBucket: "paperless-app-deb17.firebasestorage.app",
+  messagingSenderId: "467939667716",
+  appId: "1:467939667716:web:b6978fee15f6b31b716a51"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db   = firebase.firestore();
+let currentUser = null;
+
+// Core loader
+document.addEventListener('DOMContentLoaded', () => {
+  // Always load localStorage first so UI is not empty while Firebase loads
+  loadStoredData();
+  refreshDashboard();
+  refreshReceiptList();
+  applySettingsUI();
+  // Show login screen by default — Firebase auth listener will hide it on login
+  document.getElementById('login-screen').classList.add('open');
+});
+
+// ── FIREBASE AUTH LISTENER ──────────────────────
+auth.onAuthStateChanged(async (user) => {
+  if(user){
+    currentUser = user;
+    // Load cloud data
+    await loadFirestoreData();
+    // Close both screens
+    document.getElementById('login-screen').classList.remove('open');
+    document.getElementById('signup-screen').classList.remove('open');
+    // Refresh UI with cloud data
+    refreshDashboard();
+    refreshReceiptList();
+    applySettingsUI();
+    showToast('Welcome back, ' + (user.displayName || user.email) + ' 👋');
+  } else {
+    currentUser = null;
+    // Show login screen
+    document.getElementById('login-screen').classList.add('open');
+  }
+});
+
+// ── LOAD FROM FIRESTORE ─────────────────────────
+async function loadFirestoreData(){
+  if(!currentUser) return;
+  try {
+    const snap = await db.collection('receipts')
+      .where('userId','==',currentUser.uid)
+      .orderBy('createdAt','desc')
+      .limit(200)
+      .get();
+    receipts = snap.docs.map(d=>({...d.data(), id:d.id}));
+    // Load settings
+    const userDoc = await db.collection('users').doc(currentUser.uid).get();
+    if(userDoc.exists && userDoc.data().settings){
+      settings = {...settings, ...userDoc.data().settings};
+    } else {
+      // New user — create profile in Firestore
+      await db.collection('users').doc(currentUser.uid).set({
+        userId: currentUser.uid,
+        email: currentUser.email || '',
+        displayName: currentUser.displayName || '',
+        plan: 'free',
+        scanCount: 0,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        settings: settings
+      });
+    }
+  } catch(err){
+    console.warn('Firestore error, using localStorage:', err.message);
+    loadStoredData(); // fallback
+  }
 }
+
+// ── FIRESTORE HELPERS ───────────────────────────
+async function saveToFirestore(receipt){
+  if(!currentUser) return null;
+  try {
+    const ref = await db.collection('receipts').add({
+      ...receipt,
+      userId: currentUser.uid,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    return ref.id;
+  } catch(err){ console.warn('Firestore save failed:', err); return null; }
+}
+
+async function updateInFirestore(id, data){
+  if(!currentUser || !id) return;
+  try {
+    await db.collection('receipts').doc(id).update({...data, updatedAt: firebase.firestore.FieldValue.serverTimestamp()});
+  } catch(err){ console.warn('Firestore update failed:', err); }
+}
+
+async function deleteFromFirestore(id){
+  if(!currentUser || !id) return;
+  try { await db.collection('receipts').doc(id).delete(); }
+  catch(err){ console.warn('Firestore delete failed:', err); }
+}
+
+async function saveSettingsToFirestore(){
+  if(!currentUser) return;
+  try { await db.collection('users').doc(currentUser.uid).update({settings, updatedAt: firebase.firestore.FieldValue.serverTimestamp()}); }
+  catch(err){ console.warn('Settings save failed:', err); }
+}
+
+// ── FIREBASE AUTH FUNCTIONS ─────────────────────
+function showAuthError(id, msg){ const el=document.getElementById(id); if(el){el.textContent=msg;el.style.display='block';} }
+function clearAuthError(id){ const el=document.getElementById(id); if(el) el.style.display='none'; }
+function showAuthLoading(loadId, formId){ document.getElementById(loadId).style.display='block'; document.getElementById(formId).style.display='none'; }
+function hideAuthLoading(loadId, formId){ document.getElementById(loadId).style.display='none'; document.getElementById(formId).style.display='block'; }
+
+function getAuthError(code){
+  const m={
+    'auth/user-not-found':'No account with this email',
+    'auth/wrong-password':'Incorrect email or password',
+    'auth/invalid-credential':'Incorrect email or password',
+    'auth/email-already-in-use':'Email already registered — try logging in',
+    'auth/weak-password':'Password must be at least 6 characters',
+    'auth/invalid-email':'Invalid email address',
+    'auth/too-many-requests':'Too many attempts. Try again later',
+    'auth/popup-closed-by-user':'Google sign-in was cancelled — please try again',
+    'auth/popup-blocked':'Popup was blocked — trying redirect instead',
+    'auth/network-request-failed':'No internet connection',
+    'auth/unauthorized-domain':'This domain is not authorized. Add it in Firebase Console → Authentication → Settings → Authorized domains',
+    'auth/operation-not-allowed':'Google sign-in is not enabled. Enable it in Firebase Console → Authentication → Sign-in providers',
+    'auth/internal-error':'An internal error occurred. Please try again',
+    'auth/cancelled-popup-request':'Sign-in cancelled',
+  };
+  return m[code]||('Error: '+code+'. Please try again.');
+}
+
+async function runEmailLogin(){
+  const email=document.getElementById('login-email').value.trim();
+  const pw=document.getElementById('login-pw').value;
+  clearAuthError('auth-error');
+  if(!email||!pw){showAuthError('auth-error','Enter your email and password');return;}
+  showAuthLoading('auth-loading','auth-form-wrap');
+  try { await auth.signInWithEmailAndPassword(email,pw); }
+  catch(err){ hideAuthLoading('auth-loading','auth-form-wrap'); showAuthError('auth-error',getAuthError(err.code)); }
+}
+
+async function runEmailSignup(){
+  const name=document.getElementById('signup-name').value.trim();
+  const email=document.getElementById('signup-email').value.trim();
+  const pw=document.getElementById('signup-pw').value;
+  const pwc=document.getElementById('signup-pw-confirm').value;
+  clearAuthError('signup-error');
+  if(!email||!pw){showAuthError('signup-error','Enter your email and password');return;}
+  if(pw!==pwc){showAuthError('signup-error','Passwords do not match');return;}
+  if(pw.length<6){showAuthError('signup-error','Password must be at least 6 characters');return;}
+  showAuthLoading('signup-loading','signup-form-wrap');
+  try {
+    const cred = await auth.createUserWithEmailAndPassword(email,pw);
+    if(name) await cred.user.updateProfile({displayName:name});
+  } catch(err){ hideAuthLoading('signup-loading','signup-form-wrap'); showAuthError('signup-error',getAuthError(err.code)); }
+}
+
+async function runGoogleLogin(){
+  const provider = new firebase.auth.GoogleAuthProvider();
+  provider.addScope('email');
+  provider.addScope('profile');
+  clearAuthError('auth-error');
+
+  // Show loading
+  const loadEl = document.getElementById('auth-loading');
+  const formEl = document.getElementById('auth-form-wrap');
+  if(loadEl) loadEl.style.display = 'block';
+  if(formEl) formEl.style.display = 'none';
+
+  try {
+    // Try popup first (works on desktop browsers)
+    await auth.signInWithPopup(provider);
+  } catch(popupErr) {
+    // If popup fails (mobile, WebView, blocked) → use redirect
+    if(
+      popupErr.code === 'auth/popup-blocked' ||
+      popupErr.code === 'auth/popup-closed-by-user' ||
+      popupErr.code === 'auth/cancelled-popup-request' ||
+      popupErr.code === 'auth/operation-not-supported-in-this-environment'
+    ){
+      try {
+        // Redirect method works everywhere including Median APK
+        await auth.signInWithRedirect(provider);
+        // Page will reload — onAuthStateChanged handles the rest
+      } catch(redirectErr){
+        if(loadEl) loadEl.style.display = 'none';
+        if(formEl) formEl.style.display = 'block';
+        showAuthError('auth-error', getAuthError(redirectErr.code));
+      }
+    } else {
+      if(loadEl) loadEl.style.display = 'none';
+      if(formEl) formEl.style.display = 'block';
+      showAuthError('auth-error', getAuthError(popupErr.code));
+    }
+  }
+}
+
+// Handle redirect result on page load
+auth.getRedirectResult().then((result) => {
+  if(result && result.user){
+    // User came back from Google redirect — auth listener handles the rest
+    console.log('Redirect login success:', result.user.email);
+  }
+}).catch((err) => {
+  if(err.code && err.code !== 'auth/no-auth-event'){
+    console.warn('Redirect result error:', err.code);
+    // Show error on login screen
+    setTimeout(() => {
+      showAuthError('auth-error', getAuthError(err.code));
+    }, 500);
+  }
+});
+
+function loadStoredData() {
+  const storedReceipts = localStorage.getItem('paperless_receipts');
+  if (storedReceipts) {
+    receipts = JSON.parse(storedReceipts);
+  } else {
+    receipts = [...defaultReceipts];
+    localStorage.setItem('paperless_receipts', JSON.stringify(receipts));
+  }
+
+  const storedSettings = localStorage.getItem('paperless_settings');
+  if (storedSettings) {
+    settings = {...settings, ...JSON.parse(storedSettings)};
+  } else {
+    localStorage.setItem('paperless_settings', JSON.stringify(settings));
+  }
+}
+
+function saveData() {
+  localStorage.setItem('paperless_receipts', JSON.stringify(receipts));
+}
+
+function saveSettings() {
+  localStorage.setItem('paperless_settings', JSON.stringify(settings));
+}
+
+// ── NAVIGATION ─────────────────────────────────
+function switchPanel(id, el){
+  panels.forEach(p=>{
+    const panel=document.getElementById('panel-'+p);
+    if(panel) panel.classList.remove('active');
+  });
+  document.querySelectorAll('.bn-item').forEach(b=>b.classList.remove('active'));
+
+  const target=document.getElementById('panel-'+id);
+  if(target) target.classList.add('active');
+
+  if(el && el.classList.contains('bn-item')){
+    el.classList.add('active');
+  } else {
+    const bnItem=document.querySelector('.bn-item[data-panel="'+id+'"]');
+    if(bnItem) bnItem.classList.add('active');
+    else{
+      const moreBtn=document.querySelector('.bn-item[data-panel="more"]');
+      if(moreBtn) moreBtn.classList.add('active');
+    }
+  }
+  document.querySelector('.content-area').scrollTop=0;
+}
+
+// ── RENDER RECEIPTS ────────────────────────────
+function renderReceiptRow(r, actualIdx){
+  const bg=catBg[r.cat]||'#f1f0ee';
+  const color=catColor[r.cat]||'#444';
+  const icon=catIcon[r.cat]||'ti-receipt';
+  const symbol = currencySymbols[settings.currency] || '$';
+  
+  return `<button class="receipt-row" onclick="openEdit(${actualIdx})" style="width:100%;text-align:left;border:none;cursor:pointer">
+    <div class="receipt-icon" style="background:${bg}"><i class="ti ${icon}" style="color:${color}"></i></div>
+    <div class="receipt-info">
+      <div class="receipt-merchant">${escapeHtml(r.merchant)}</div>
+      <div class="receipt-meta">${r.date} · ${escapeHtml(r.note||'')}</div>
+    </div>
+    <div style="text-align:right;flex-shrink:0">
+      <div class="receipt-amount">${symbol}${parseFloat(r.total).toFixed(2)}</div>
+      <span class="cat ${catClass[r.cat]||'cat-other'}">${r.cat}</span>
+    </div>
+  </button>`;
+}
+
+function refreshDashboard(){
+  const total=receipts.reduce((s,r)=>s+(parseFloat(r.total)||0),0);
+  const used=receipts.length;
+  const symbol = currencySymbols[settings.currency] || '$';
+
+  document.getElementById('stat-count').textContent=used;
+  document.getElementById('stat-total').textContent= symbol + total.toFixed(2);
+  document.getElementById('stat-left').textContent=Math.max(0,10-used);
+  document.getElementById('limit-fill').style.width=Math.min(100,(used/10)*100)+'%';
+  document.getElementById('limit-text').textContent=used+' of 10 used';
+
+  // Calculate dynamic top category
+  const cats={};
+  receipts.forEach(r=>{cats[r.cat]=(cats[r.cat]||0)+(parseFloat(r.total)||0);});
+  const sortedCats = Object.entries(cats).sort((a,b)=>b[1]-a[1]);
+  const top = sortedCats[0];
+
+  const catValBadge = document.getElementById('stat-cat');
+  if(top){
+    catValBadge.textContent=top[0];
+    catValBadge.className='cat '+(catClass[top[0]]||'cat-other');
+    document.getElementById('stat-cat-amt').textContent=symbol+top[1].toFixed(2)+' this month';
+  } else {
+    catValBadge.textContent='N/A';
+    catValBadge.className='cat cat-other';
+    document.getElementById('stat-cat-amt').textContent=symbol+'0.00 spent';
+  }
+
+  // Dashboard list (recent 3)
+  const dl=document.getElementById('dash-receipt-list');
+  if (receipts.length === 0) {
+    dl.innerHTML = `<div style="text-align:center;padding:2rem 1rem;font-size:13px;color:var(--text3)">No receipts logged. Scan your first receipt below!</div>`;
+  } else {
+    dl.innerHTML=receipts.slice(0,3).map((r)=> {
+      const idx = receipts.findIndex(item => item.id === r.id);
+      return renderReceiptRow(r, idx);
+    }).join('');
+  }
+}
+
+function refreshReceiptList(){
+  const fl=document.getElementById('full-receipt-list');
+  const symbol = currencySymbols[settings.currency] || '$';
+  
+  if (receipts.length === 0) {
+    fl.innerHTML = `<div style="text-align:center;padding:3rem 1rem;font-size:13px;color:var(--text3)">No receipts stored yet.</div>`;
+    document.getElementById('receipts-count').textContent = `0 receipts`;
+    return;
+  }
+  
+  fl.innerHTML=receipts.map((r, i)=>renderReceiptRow(r, i)).join('');
+  document.getElementById('receipts-count').textContent=
+    receipts.length+' receipt'+(receipts.length!==1?'s':'')+
+    ' — '+symbol+receipts.reduce((s,r)=>s+(parseFloat(r.total)||0),0).toFixed(2)+' total';
+}
+
+function filterReceipts(q){
+  const fl=document.getElementById('full-receipt-list');
+  const symbol = currencySymbols[settings.currency] || '$';
+  const filtered=!q ? receipts : receipts.filter(r=>
+    r.merchant.toLowerCase().includes(q.toLowerCase())||
+    r.cat.toLowerCase().includes(q.toLowerCase())||
+    (r.note||'').toLowerCase().includes(q.toLowerCase())
+  );
+  
+  fl.innerHTML=filtered.map((r)=>renderReceiptRow(r, receipts.findIndex(item => item.id === r.id))).join('');
+  document.getElementById('receipts-count').textContent=
+    filtered.length+' receipt'+(filtered.length!==1?'s':'')+
+    ' — '+symbol+filtered.reduce((s,r)=>s+(parseFloat(r.total)||0),0).toFixed(2)+' total';
+}
+
+// ── EDIT MODAL ─────────────────────────────────
 let editingIdx=null;
 function openEdit(idx){
   editingIdx=idx;
@@ -612,18 +1097,29 @@ function openEdit(idx){
   document.getElementById('f-notes').value=r.note||'';
   document.getElementById('edit-modal').classList.add('open');
 }
-function closeModal(){document.getElementById('edit-modal').classList.remove('open')}
-function closeScanModal(){document.getElementById('scan-modal').classList.remove('open')}
 
-// ── Save edits back into receipts array & refresh UI ──
-function saveEdit(){
+function closeModal(){
+  document.getElementById('edit-modal').classList.remove('open');
+  editingIdx=null;
+}
+
+async function saveEdit(){
   if(editingIdx!==null){
-    receipts[editingIdx].merchant=document.getElementById('f-merchant').value;
-    receipts[editingIdx].date=document.getElementById('f-date').value;
-    receipts[editingIdx].total=document.getElementById('f-total').value;
-    receipts[editingIdx].tax=document.getElementById('f-tax').value;
-    receipts[editingIdx].cat=document.getElementById('f-cat').value;
-    receipts[editingIdx].note=document.getElementById('f-notes').value;
+    const merchant=document.getElementById('f-merchant').value.trim();
+    const total=document.getElementById('f-total').value;
+    if(!merchant||!total){showToast('Merchant and Total fields are required');return;}
+    const updated={
+      merchant,
+      date:document.getElementById('f-date').value,
+      total:parseFloat(total).toFixed(2),
+      tax:parseFloat(document.getElementById('f-tax').value||0).toFixed(2),
+      cat:document.getElementById('f-cat').value,
+      note:document.getElementById('f-notes').value.trim()
+    };
+    const receiptId=receipts[editingIdx].id;
+    receipts[editingIdx]={...receipts[editingIdx],...updated};
+    if(currentUser){ updateInFirestore(receiptId, updated); }
+    else { saveData(); }
     refreshReceiptList();
     refreshDashboard();
   }
@@ -631,462 +1127,340 @@ function saveEdit(){
   showToast('Receipt updated');
 }
 
-function deleteReceiptEntry(){
+async function deleteReceiptEntry(){
   if(editingIdx!==null){
+    const receiptId=receipts[editingIdx].id;
     receipts.splice(editingIdx,1);
-    refreshReceiptList();
-    refreshDashboard();
+    if(currentUser){ deleteFromFirestore(receiptId); }
+    else { saveData(); }
   }
+  refreshReceiptList();
+  refreshDashboard();
   closeModal();
   showToast('Receipt deleted');
 }
 
-function selectAll(){document.querySelectorAll('#full-receipt-list .checkbox').forEach(c=>c.classList.add('checked'));}
-
-function filterReceipts(q){
-  const rows=document.querySelectorAll('#full-receipt-list .receipt-row:not(.header)');
-  let count=0,total=0;
-  rows.forEach((row,i)=>{
-    const r=receipts[i];
-    if(!r){row.style.display='none';return;}
-    const match=!q||r.merchant.toLowerCase().includes(q.toLowerCase())||r.cat.toLowerCase().includes(q.toLowerCase());
-    row.style.display=match?'':'none';
-    if(match){count++;total+=parseFloat(r.total)||0;}
-  });
-  document.getElementById('receipts-count').textContent=count+' receipt'+(count!==1?'s':'')+' — $'+total.toFixed(2)+' total';
-}
-
-// ── Refresh full receipt list from array ──
-function refreshReceiptList(){
-  const catClass={Food:'cat-food',Travel:'cat-travel',Software:'cat-tech',Office:'cat-office',Other:'cat-other'};
-  const list=document.getElementById('full-receipt-list');
-  list.querySelectorAll('.receipt-row:not(.header)').forEach(r=>r.remove());
-  receipts.forEach((r,i)=>{
-    const row=document.createElement('div');
-    row.className='receipt-row';
-    row.innerHTML=`
-      <div class="checkbox"></div>
-      <div><div class="merchant">${r.merchant}</div><div style="font-size:11px;color:var(--color-text-tertiary)">${r.note||''}</div></div>
-      <div class="date-text">${r.date}</div>
-      <div class="amount">$${parseFloat(r.total).toFixed(2)}</div>
-      <div><span class="cat-pill ${catClass[r.cat]||'cat-other'}">${r.cat}</span></div>
-      <div><button class="btn" style="padding:3px 8px;font-size:11px" onclick="event.stopPropagation();openEdit(${i})">Edit</button></div>`;
-    row.onclick=()=>openEdit(i);
-    list.appendChild(row);
-  });
-  document.getElementById('receipts-count').textContent=
-    receipts.length+' receipt'+(receipts.length!==1?'s':'')+' — $'+
-    receipts.reduce((s,r)=>s+(parseFloat(r.total)||0),0).toFixed(2)+' total';
-}
-
-// ── Refresh dashboard stats ──
-function refreshDashboard(){
-  const total=receipts.reduce((s,r)=>s+(parseFloat(r.total)||0),0);
-  const statCards=document.querySelectorAll('.stat-value');
-  statCards[0].textContent=receipts.length;
-  statCards[1].textContent='$'+total.toFixed(2);
-  const used=receipts.length;
-  const left=Math.max(0,10-used);
-  statCards[2].textContent=left;
-  document.querySelector('.limit-fill').style.width=Math.min(100,(used/10)*100)+'%';
-  document.querySelector('.limit-text').textContent=used+' of 10 used';
-}
-
-function selectFmt(fmt){
-  // Only CSV is available right now
-  if(fmt !== 'csv'){
-    showComingSoon(fmt+' export');
-    return;
-  }
-  ['csv','xlsx','pdf','email'].forEach(f=>document.getElementById('fmt-'+f).classList.toggle('selected',f===fmt));
-}
-
-function showComingSoon(feature){
-  const existing=document.getElementById('coming-soon-popup');
-  if(existing) existing.remove();
-  const popup=document.createElement('div');
-  popup.id='coming-soon-popup';
-  popup.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
-  popup.innerHTML=`
-    <div style="background:#fff;border-radius:12px;padding:1.5rem;width:100%;max-width:340px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.15)">
-      <div style="width:48px;height:48px;background:#EEEDFE;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto .75rem">
-        <i class="ti ti-clock" style="font-size:24px;color:#3C3489"></i>
-      </div>
-      <div style="font-size:15px;font-weight:600;color:#1a1a1a;margin-bottom:.5rem">${feature}</div>
-      <div style="font-size:13px;color:#6b6b6b;line-height:1.6;margin-bottom:1.25rem">
-        This feature requires the Firebase backend to be connected. It will be available in the full launch version of Paperless.
-      </div>
-      <div style="display:flex;gap:8px;justify-content:center">
-        <button onclick="document.getElementById('coming-soon-popup').remove()"
-          style="padding:8px 20px;border-radius:8px;border:1px solid #e5e5e5;background:transparent;font-size:13px;cursor:pointer;font-family:inherit">
-          Got it
-        </button>
-        <button onclick="document.getElementById('coming-soon-popup').remove();showToast('CSV export is fully working now')"
-          style="padding:8px 20px;border-radius:8px;border:none;background:#3C3489;color:#EEEDFE;font-size:13px;cursor:pointer;font-weight:500;font-family:inherit">
-          Use CSV instead
-        </button>
-      </div>
-    </div>`;
-  document.body.appendChild(popup);
-}
-
-// ── Real CSV export — actually downloads a file ──
-function runExport(){
-  const headers=['Date','Merchant','Category','Total','Tax','Notes'];
-  const rows=receipts.map(r=>[
-    r.date,r.merchant,r.cat,
-    parseFloat(r.total||0).toFixed(2),
-    parseFloat(r.tax||0).toFixed(2),
-    r.note||''
-  ]);
-  const totalAmt=receipts.reduce((s,r)=>s+(parseFloat(r.total)||0),0);
-  const csv=[
-    headers.join(','),
-    ...rows.map(row=>row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')),
-    '',
-    '"TOTAL","","","'+totalAmt.toFixed(2)+'","",""',
-    '"Exported by Paperless — Dev Nahin","'+new Date().toLocaleDateString()+'","","","",""'
-  ].join('\n');
-
-  const fileName='paperless_expenses_'+new Date().toISOString().slice(0,10)+'.csv';
-
-  // Method 1 — data URI (works in WebView / Median APK)
-  const dataUri='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
-  const a=document.createElement('a');
-  a.setAttribute('href',dataUri);
-  a.setAttribute('download',fileName);
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-
-  // Method 2 — Android WebView fallback popup (copy CSV manually)
-  setTimeout(()=>{
-    const existing=document.getElementById('csv-popup');
-    if(existing) existing.remove();
-    const popup=document.createElement('div');
-    popup.id='csv-popup';
-    popup.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
-    const safeCSV=csv.replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/\$/g,'\\$');
-    popup.innerHTML=`
-      <div style="background:#fff;border-radius:12px;padding:1.5rem;width:100%;max-width:420px;box-shadow:0 8px 32px rgba(0,0,0,.2)">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
-          <div style="font-size:14px;font-weight:600;color:#1a1a1a">Export — ${fileName}</div>
-          <button onclick="document.getElementById('csv-popup').remove()"
-            style="background:none;border:none;font-size:20px;cursor:pointer;color:#9e9e9e;line-height:1">×</button>
-        </div>
-        <div style="font-size:12px;color:#6b6b6b;margin-bottom:.75rem">
-          If the file did not download automatically, tap <strong>Copy all</strong> then paste into a Notes or Email app.
-        </div>
-        <textarea id="csv-text" style="width:100%;height:160px;font-size:10px;font-family:monospace;border:1px solid #e5e5e5;border-radius:8px;padding:.625rem;resize:none;color:#1a1a1a" readonly>${csv}</textarea>
-        <div style="display:flex;gap:8px;margin-top:.875rem;justify-content:flex-end">
-          <button onclick="document.getElementById('csv-popup').remove()"
-            style="padding:7px 16px;border-radius:8px;border:1px solid #e5e5e5;background:transparent;font-size:13px;cursor:pointer;font-family:inherit">
-            Close
-          </button>
-          <button onclick="
-            const t=document.getElementById('csv-text');
-            t.select();
-            t.setSelectionRange(0,99999);
-            navigator.clipboard && navigator.clipboard.writeText(t.value).then(()=>showToast('CSV copied — paste into Excel or email')).catch(()=>{document.execCommand('copy');showToast('CSV copied');});
-            !navigator.clipboard && (document.execCommand('copy'),showToast('CSV copied — paste into Excel or email'));"
-            style="padding:7px 16px;border-radius:8px;border:none;background:#3C3489;color:#EEEDFE;font-size:13px;cursor:pointer;font-weight:500;font-family:inherit">
-            Copy all
-          </button>
-        </div>
-      </div>`;
-    document.body.appendChild(popup);
-  }, 300);
-
-  const res=document.getElementById('export-result');
-  res.style.display='flex';
-  document.getElementById('export-msg').textContent=fileName+' — tap Copy all if download did not start.';
-}
-// ── Real camera (mobile) ──────────────────────
+// ── SCANNING & AI PIPELINE SIMULATOR ───────────
 function triggerScan(){
   const input=document.createElement('input');
-  input.type='file';
-  input.accept='image/*';
-  input.capture='environment'; // opens rear camera on mobile
-  input.onchange=function(e){
-    const file=e.target.files[0];
-    if(file) handleRealFile(file);
-  };
+  input.type='file';input.accept='image/*';input.capture='environment';
+  input.onchange=e=>{if(e.target.files[0])handleRealFile(e.target.files[0]);};
   input.click();
 }
 
-// ── Real file upload (gallery / PDF) ─────────
 function triggerUpload(){
   const input=document.createElement('input');
-  input.type='file';
-  input.accept='image/*,application/pdf';
-  // no capture = opens file picker, not camera
-  input.onchange=function(e){
-    const file=e.target.files[0];
-    if(file) handleRealFile(file);
-  };
+  input.type='file';input.accept='image/*,application/pdf';
+  input.onchange=e=>{if(e.target.files[0])handleRealFile(e.target.files[0]);};
   input.click();
 }
 
-// ── Process the real file ─────────────────────
 function handleRealFile(file){
   const body=document.getElementById('scan-modal-body');
-  body.innerHTML=`<div class="ai-thinking"><div class="dot-pulse"><span></span><span></span><span></span></div> Reading your receipt…</div>`;
+  body.innerHTML=`<div class="modal-title">AI extraction</div><div class="ai-thinking"><div class="dot-pulse"><span></span><span></span><span></span></div> Reading your receipt…</div>`;
   document.getElementById('scan-modal').classList.add('open');
-
   const reader=new FileReader();
-  reader.onload=function(ev){
+  reader.onload=ev=>{
     const src=ev.target.result;
-
-    // Show actual photo preview + loading
-    body.innerHTML=`
-      <img src="${src}" style="width:100%;border-radius:8px;margin-bottom:1rem;max-height:180px;object-fit:cover">
+    body.innerHTML=`<div class="modal-title">AI extraction</div>
+      <img src="${src}" style="width:100%;border-radius:var(--r);margin-bottom:.875rem;max-height:160px;object-fit:cover">
       <div class="ai-thinking"><div class="dot-pulse"><span></span><span></span><span></span></div> AI is reading your receipt…</div>`;
-
-    // After 2s show manual entry form
-    // (real backend replaces this with actual AI extraction)
     setTimeout(()=>{
-      body.innerHTML=`
-        <div style="background:#E1F5EE;border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:12px;color:#085041;display:flex;align-items:center;gap:8px">
-          <i class="ti ti-circle-check"></i> Photo received — confirm or fill in the details
+      body.innerHTML=`<div class="modal-title">Confirm details</div>
+        <div style="background:var(--green-light);border-radius:var(--r);padding:.625rem .875rem;margin-bottom:.875rem;font-size:12px;color:var(--green);display:flex;align-items:center;gap:6px">
+          <i class="ti ti-circle-check"></i> Photo received — confirm or fill in details
         </div>
-        <img src="${src}" style="width:100%;border-radius:8px;margin-bottom:1rem;max-height:120px;object-fit:cover">
-        <div class="field"><label>Merchant name</label><input type="text" id="r-merchant" placeholder="e.g. Shake Shack"></div>
+        <img src="${src}" style="width:100%;border-radius:var(--r);margin-bottom:.875rem;max-height:100px;object-fit:cover">
+        <div class="field"><label>Merchant name</label><input type="text" id="r-merchant" placeholder="e.g. Starbucks"></div>
         <div class="field"><label>Date</label><input type="date" id="r-date" value="${new Date().toISOString().split('T')[0]}"></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <div class="field"><label>Total ($)</label><input type="number" id="r-total" step="0.01" placeholder="0.00"></div>
-          <div class="field"><label>Tax ($)</label><input type="number" id="r-tax" step="0.01" placeholder="0.00"></div>
+        <div class="two-col">
+          <div class="field"><label>Total</label><input type="number" id="r-total" step="0.01" placeholder="0.00"></div>
+          <div class="field"><label>Tax</label><input type="number" id="r-tax" step="0.01" placeholder="0.00"></div>
         </div>
-        <div class="field">
-          <label>Category</label>
-          <select id="r-cat">
-            <option>Food</option><option>Travel</option><option>Software</option><option>Office</option><option>Other</option>
-          </select>
+        <div class="field"><label>Category</label>
+          <select id="r-cat"><option>Food</option><option>Travel</option><option>Software</option><option>Office</option><option>Other</option></select>
         </div>
-        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:.5rem">
+        <div class="modal-btns">
           <button class="btn" onclick="closeScanModal()">Cancel</button>
-          <button class="btn primary" onclick="saveRealReceipt()"><i class="ti ti-device-floppy"></i> Save receipt</button>
+          <button class="btn primary" onclick="saveRealReceipt()"><i class="ti ti-device-floppy"></i> Save</button>
         </div>`;
-    },2000);
+    },1800);
   };
   reader.readAsDataURL(file);
 }
 
-// ── Save the real receipt to dashboard ────────
-function saveRealReceipt(){
-  const merchant=document.getElementById('r-merchant').value||'Unknown merchant';
-  const date=document.getElementById('r-date').value;
-  const total=document.getElementById('r-total').value||'0.00';
-  const tax=document.getElementById('r-tax').value||'0.00';
-  const cat=document.getElementById('r-cat').value;
-  receipts.unshift({merchant,note:'Scanned receipt',date,total,tax,cat});
-  closeScanModal();
-  refreshReceiptList();
-  refreshDashboard();
-  showToast('Receipt saved to dashboard');
-}
-
-// ── Demo samples (try a sample section only) ──
 function runDemo(type){
   const demos={
-    restaurant:{merchant:'The Brasserie',date:'2026-06-15',total:'86.50',tax:'7.80',category:'Food'},
-    hotel:{merchant:'Marriott Dhaka',date:'2026-06-13',total:'312.00',tax:'37.44',category:'Travel'},
-    software:{merchant:'Notion Pro',date:'2026-06-16',total:'16.00',tax:'0.00',category:'Software'}
+    restaurant:{merchant:'The Brasserie',date:'2026-06-15',total:'86.50',tax:'7.80',cat:'Food'},
+    hotel:{merchant:'Marriott Dhaka',date:'2026-06-13',total:'312.00',tax:'37.44',cat:'Travel'},
+    software:{merchant:'Notion Pro',date:'2026-06-16',total:'16.00',tax:'0.00',cat:'Software'}
   };
   const d=demos[type];
   const body=document.getElementById('scan-modal-body');
-  body.innerHTML=`<div class="ai-thinking"><div class="dot-pulse"><span></span><span></span><span></span></div> Loading sample receipt…</div>`;
+  body.innerHTML=`<div class="modal-title">Sample receipt</div><div class="ai-thinking"><div class="dot-pulse"><span></span><span></span><span></span></div> Loading sample…</div>`;
   document.getElementById('scan-modal').classList.add('open');
   setTimeout(()=>{
-    body.innerHTML=`
-      <div style="background:#E1F5EE;border-radius:8px;padding:.75rem 1rem;margin-bottom:1rem;font-size:12px;color:#085041;display:flex;align-items:center;gap:8px">
-        <i class="ti ti-circle-check"></i> Sample receipt loaded — this is how AI extraction will look
+    body.innerHTML=`<div class="modal-title">Confirm details</div>
+      <div style="background:var(--green-light);border-radius:var(--r);padding:.625rem .875rem;margin-bottom:.875rem;font-size:12px;color:var(--green);display:flex;align-items:center;gap:6px">
+        <i class="ti ti-circle-check"></i> Sample loaded — this is how AI extraction looks
       </div>
       <div class="field"><label>Merchant name</label><input type="text" id="r-merchant" value="${d.merchant}"></div>
       <div class="field"><label>Date</label><input type="date" id="r-date" value="${d.date}"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div class="field"><label>Total ($)</label><input type="number" id="r-total" step="0.01" value="${d.total}"></div>
-        <div class="field"><label>Tax ($)</label><input type="number" id="r-tax" step="0.01" value="${d.tax}"></div>
+      <div class="two-col">
+        <div class="field"><label>Total</label><input type="number" id="r-total" step="0.01" value="${d.total}"></div>
+        <div class="field"><label>Tax</label><input type="number" id="r-tax" step="0.01" value="${d.tax}"></div>
       </div>
-      <div class="field">
-        <label>Category</label>
+      <div class="field"><label>Category</label>
         <select id="r-cat">
-          <option ${d.category==='Food'?'selected':''}>Food</option>
-          <option ${d.category==='Travel'?'selected':''}>Travel</option>
-          <option ${d.category==='Software'?'selected':''}>Software</option>
+          <option ${d.cat==='Food'?'selected':''}>Food</option>
+          <option ${d.cat==='Travel'?'selected':''}>Travel</option>
+          <option ${d.cat==='Software'?'selected':''}>Software</option>
           <option>Office</option><option>Other</option>
         </select>
       </div>
-      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:.5rem">
+      <div class="modal-btns">
         <button class="btn" onclick="closeScanModal()">Cancel</button>
-        <button class="btn primary" onclick="saveRealReceipt()"><i class="ti ti-device-floppy"></i> Save receipt</button>
+        <button class="btn primary" onclick="saveRealReceipt()"><i class="ti ti-device-floppy"></i> Save</button>
       </div>`;
   },1200);
 }
-// ── Logout ────────────────────────────────────
-function confirmLogout(){
-  const existing=document.getElementById('logout-popup');
-  if(existing) existing.remove();
-  const popup=document.createElement('div');
-  popup.id='logout-popup';
-  popup.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
-  popup.innerHTML=`
-    <div style="background:#fff;border-radius:12px;padding:1.5rem;width:100%;max-width:320px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.15)">
-      <div style="width:48px;height:48px;background:#EEEDFE;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto .875rem">
-        <i class="ti ti-logout" style="font-size:24px;color:#3C3489"></i>
-      </div>
-      <div style="font-size:15px;font-weight:600;color:#1a1a1a;margin-bottom:.5rem">Log out?</div>
-      <div style="font-size:13px;color:#6b6b6b;line-height:1.6;margin-bottom:1.25rem">
-        You will be returned to the login screen. Your receipts will be waiting when you log back in.
-      </div>
-      <div style="display:flex;gap:8px;justify-content:center">
-        <button onclick="document.getElementById('logout-popup').remove()"
-          style="padding:8px 20px;border-radius:8px;border:1px solid #e5e5e5;background:transparent;font-size:13px;cursor:pointer;font-family:inherit">
-          Cancel
-        </button>
-        <button onclick="runLogout()"
-          style="padding:8px 20px;border-radius:8px;border:none;background:#3C3489;color:#EEEDFE;font-size:13px;cursor:pointer;font-weight:500;font-family:inherit">
-          Log out
+
+function closeScanModal(){document.getElementById('scan-modal').classList.remove('open')}
+
+async function saveRealReceipt(){
+  const merchant=document.getElementById('r-merchant').value.trim()||'Unknown merchant';
+  const date=document.getElementById('r-date').value;
+  const total=parseFloat(document.getElementById('r-total').value||0).toFixed(2);
+  const tax=parseFloat(document.getElementById('r-tax').value||0).toFixed(2);
+  const cat=document.getElementById('r-cat').value;
+  const receipt={merchant,note:'Scanned receipt',date,total,tax,cat};
+
+  closeScanModal();
+  if(currentUser){
+    showToast('Saving...');
+    const id = await saveToFirestore(receipt);
+    receipts.unshift({id:id||Date.now(),...receipt});
+  } else {
+    receipts.unshift({id:Date.now(),...receipt});
+    saveData();
+  }
+  refreshReceiptList();
+  refreshDashboard();
+  switchPanel('dashboard');
+  showToast('Receipt saved ✓');
+}
+
+// ── EXPORT ENGINE ─────────────────────────────
+function selectFmt(fmt){
+  document.querySelectorAll('.export-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('fmt-'+fmt).classList.add('selected');
+}
+
+function showComingSoon(feature){
+  document.getElementById('cs-title').textContent=feature+' — Coming soon';
+  document.getElementById('cs-popup').classList.add('open');
+}
+
+function runExport(){
+  const headers=['Date','Merchant','Category','Total','Tax','Notes'];
+  const rows=receipts.map(r=>[r.date,r.merchant,r.cat,parseFloat(r.total||0).toFixed(2),parseFloat(r.tax||0).toFixed(2),r.note||'']);
+  const totalAmt=receipts.reduce((s,r)=>s+(parseFloat(r.total)||0),0);
+  const csv=[
+    headers.join(','),
+    ...rows.map(row=>row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')),
+    '','\"TOTAL\",\"\",\"\",\"'+totalAmt.toFixed(2)+'\",\"\",\"\"',
+    '\"Exported by Paperless — Dev Nahin\",\"'+new Date().toLocaleDateString()+'\",\"\",\"\",\"\",\"\"'
+  ].join('\n');
+  const fileName='paperless_expenses_'+new Date().toISOString().slice(0,10)+'.csv';
+  const dataUri='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  const a=document.createElement('a');
+  a.setAttribute('href',dataUri);a.setAttribute('download',fileName);
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+
+  setTimeout(()=>{
+    const existing=document.getElementById('csv-popup');
+    if(existing)existing.remove();
+    const popup=document.createElement('div');
+    popup.id='csv-popup';
+    popup.className='popup-bg open';
+    popup.innerHTML=`<div class="popup">
+      <div class="popup-icon" style="background:var(--green-light)"><i class="ti ti-file-spreadsheet" style="color:var(--green)"></i></div>
+      <div class="popup-title">${fileName}</div>
+      <div class="popup-desc">If download did not start, tap Copy all and paste into Gmail or Google Sheets.</div>
+      <textarea id="csv-text" style="width:100%;height:120px;font-size:10px;font-family:monospace;border:1px solid var(--border);border-radius:var(--r);padding:.5rem;resize:none;margin-bottom:.875rem" readonly>${csv}</textarea>
+      <div class="popup-btns">
+        <button class="btn" onclick="document.getElementById('csv-popup').remove()">Close</button>
+        <button class="btn success" onclick="
+          const t=document.getElementById('csv-text');
+          t.select();t.setSelectionRange(0,99999);
+          try{navigator.clipboard.writeText(t.value).then(()=>showToast('CSV copied ✓'));}
+          catch(e){document.execCommand('copy');showToast('CSV copied ✓');}">
+          Copy all
         </button>
       </div>
     </div>`;
-  document.body.appendChild(popup);
+    document.body.appendChild(popup);
+  },400);
+
+  const res=document.getElementById('export-result');
+  res.classList.add('show');
+  document.getElementById('export-msg').textContent=fileName+' — ready to transfer.';
 }
 
-function runLogout(){
-  document.getElementById('logout-popup').remove();
-  // Reset app state
-  receipts.length=0;
-  refreshReceiptList();
+// ── SETTINGS SYSTEM ────────────────────────────
+function applySettingsUI() {
+  // Toggle states
+  Object.keys(settings).forEach(key => {
+    const el = document.getElementById('set-' + key);
+    if (el) {
+      if (typeof settings[key] === 'boolean') {
+        el.classList.toggle('on', settings[key]);
+      } else {
+        el.value = settings[key];
+      }
+    }
+  });
+}
+
+function toggleSetting(key) {
+  const el = document.getElementById('set-' + key);
+  if (el) {
+    const newVal = !el.classList.contains('on');
+    el.classList.toggle('on', newVal);
+    settings[key] = newVal;
+    saveSettings();
+    saveSettingsToFirestore();
+  }
+}
+
+function saveSelectionSetting(key, val) {
+  settings[key] = val;
+  saveSettings();
+  saveSettingsToFirestore();
   refreshDashboard();
-  // Show login screen
-  showLoginScreen();
-  showToast('Logged out successfully');
+  refreshReceiptList();
 }
 
-// ── Delete Account ────────────────────────────
+// ── AUTHENTICATION ─────────────────────────────
+function confirmLogout(){document.getElementById('logout-popup').classList.add('open')}
+async function runLogout(){
+  document.getElementById('logout-popup').classList.remove('open');
+  if(currentUser){ await auth.signOut(); }
+  else { document.getElementById('login-screen').classList.add('open'); }
+  receipts=[];
+  showToast('Logged out');
+}
+
 function confirmDeleteAccount(){
-  const existing=document.getElementById('delete-popup');
-  if(existing) existing.remove();
-  const popup=document.createElement('div');
-  popup.id='delete-popup';
-  popup.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
-  popup.innerHTML=`
-    <div style="background:#fff;border-radius:12px;padding:1.5rem;width:100%;max-width:340px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.2)">
-      <div style="width:48px;height:48px;background:#fef2f2;border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto .875rem">
-        <i class="ti ti-trash" style="font-size:24px;color:#b91c1c"></i>
-      </div>
-      <div style="font-size:15px;font-weight:600;color:#1a1a1a;margin-bottom:.5rem">Delete account?</div>
-      <div style="font-size:13px;color:#6b6b6b;line-height:1.6;margin-bottom:1rem">
-        This will permanently delete your account and all your receipts. <strong>This cannot be undone.</strong>
-      </div>
-      <div style="background:#fef2f2;border-radius:8px;padding:.75rem;margin-bottom:1.25rem;font-size:12px;color:#b91c1c">
-        ⚠️ All ${receipts.length} receipt${receipts.length!==1?'s':''} will be deleted forever
-      </div>
-      <div style="display:flex;gap:8px;justify-content:center">
-        <button onclick="document.getElementById('delete-popup').remove()"
-          style="padding:8px 20px;border-radius:8px;border:1px solid #e5e5e5;background:transparent;font-size:13px;cursor:pointer;font-family:inherit">
-          Cancel
-        </button>
-        <button onclick="runDeleteAccount()"
-          style="padding:8px 20px;border-radius:8px;border:none;background:#b91c1c;color:#fff;font-size:13px;cursor:pointer;font-weight:500;font-family:inherit">
-          Yes, delete everything
-        </button>
-      </div>
-    </div>`;
-  document.body.appendChild(popup);
+  document.getElementById('delete-desc').textContent='This permanently deletes your local account and all '+receipts.length+' receipt'+(receipts.length!==1?'s':'')+'. This cannot be undone.';
+  document.getElementById('delete-popup').classList.add('open');
 }
 
-function runDeleteAccount(){
-  document.getElementById('delete-popup').remove();
-  // Clear all data
-  receipts.length=0;
-  refreshReceiptList();
-  refreshDashboard();
-  // Show login screen
-  showLoginScreen();
+async function runDeleteEverything(){
+  document.getElementById('delete-popup').classList.remove('open');
+  if(currentUser){
+    try {
+      const snap=await db.collection('receipts').where('userId','==',currentUser.uid).get();
+      const batch=db.batch();
+      snap.docs.forEach(d=>batch.delete(d.ref));
+      await batch.commit();
+      await db.collection('users').doc(currentUser.uid).delete();
+      await currentUser.delete();
+    } catch(err){ showToast('Please log out and log back in first'); return; }
+  }
+  receipts=[];
+  settings={'notif-weekly':true,'notif-limit':true,'ai-cat':true,'save-img':true,'currency':'USD','export':'CSV'};
+  localStorage.removeItem('paperless_receipts');
+  localStorage.removeItem('paperless_settings');
+  document.getElementById('signup-screen').classList.remove('open');
+  document.getElementById('login-screen').classList.add('open');
   showToast('Account deleted');
 }
 
-// ── Login Screen ──────────────────────────────
-function showLoginScreen(){
-  const existing=document.getElementById('login-screen');
-  if(existing) existing.remove();
-  const screen=document.createElement('div');
-  screen.id='login-screen';
-  screen.style.cssText='position:fixed;inset:0;background:#f1f0ee;z-index:99999;display:flex;align-items:center;justify-content:center;padding:1rem';
-  screen.innerHTML=`
-    <div style="background:#fff;border-radius:16px;padding:2rem;width:100%;max-width:360px;box-shadow:0 8px 40px rgba(0,0,0,.1)">
-      <div style="text-align:center;margin-bottom:1.75rem">
-        <div style="width:56px;height:56px;background:#3C3489;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto .875rem">
-          <i class="ti ti-scan" style="font-size:28px;color:#EEEDFE"></i>
-        </div>
-        <div style="font-size:22px;font-weight:600;color:#1a1a1a">Paperless</div>
-        <div style="font-size:13px;color:#9e9e9e;margin-top:4px">by Dev Nahin</div>
-      </div>
-      <div style="margin-bottom:1rem">
-        <label style="font-size:12px;color:#6b6b6b;display:block;margin-bottom:4px">Email</label>
-        <input id="login-email" type="email" placeholder="you@example.com"
-          style="width:100%;padding:10px 12px;border:1px solid #e5e5e5;border-radius:8px;font-size:14px;font-family:inherit;outline:none;color:#1a1a1a">
-      </div>
-      <div style="margin-bottom:1.25rem">
-        <label style="font-size:12px;color:#6b6b6b;display:block;margin-bottom:4px">Password</label>
-        <input id="login-password" type="password" placeholder="••••••••"
-          style="width:100%;padding:10px 12px;border:1px solid #e5e5e5;border-radius:8px;font-size:14px;font-family:inherit;outline:none;color:#1a1a1a">
-      </div>
-      <button onclick="runLogin()"
-        style="width:100%;padding:11px;border-radius:8px;border:none;background:#3C3489;color:#EEEDFE;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;margin-bottom:.75rem">
-        Log in
-      </button>
-      <button onclick="runLogin()"
-        style="width:100%;padding:11px;border-radius:8px;border:1px solid #e5e5e5;background:transparent;color:#1a1a1a;font-size:14px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px">
-        <i class="ti ti-brand-google" style="font-size:16px;color:#EA4335"></i> Continue with Google
-      </button>
-      <div style="text-align:center;margin-top:1rem;font-size:12px;color:#9e9e9e">
-        No account? <span onclick="runLogin()" style="color:#3C3489;cursor:pointer;font-weight:500">Sign up free</span>
-      </div>
-    </div>`;
-  document.body.appendChild(screen);
+function showSignup() {
+  document.getElementById('login-screen').classList.remove('open');
+  document.getElementById('signup-screen').classList.add('open');
+}
+
+function showLogin() {
+  document.getElementById('signup-screen').classList.remove('open');
+  document.getElementById('login-screen').classList.add('open');
 }
 
 function runLogin(){
-  const screen=document.getElementById('login-screen');
-  if(screen){
-    screen.style.opacity='0';
-    screen.style.transition='opacity 0.3s';
-    setTimeout(()=>screen.remove(),300);
-  }
-  // Restore default receipts after login
-  if(receipts.length===0){
-    receipts.push(
-      {merchant:'Shake Shack',note:'Order #4419',date:'2026-06-14',total:'42.80',tax:'3.80',cat:'Food'},
-      {merchant:'Figma',note:'Monthly subscription',date:'2026-06-12',total:'15.00',tax:'0.00',cat:'Software'},
-      {merchant:'Grab — Airport',note:'Trip to SGX',date:'2026-06-10',total:'183.60',tax:'16.20',cat:'Travel'}
-    );
-    refreshReceiptList();
-    refreshDashboard();
-  }
-  switchPanel('dashboard',document.querySelector('[data-panel=dashboard]'));
+  // Kept for local file preview — Firebase handles real login
+  document.getElementById('login-screen').classList.remove('open');
+  loadStoredData();
+  refreshReceiptList();
+  refreshDashboard();
+  switchPanel('dashboard');
   showToast('Welcome back to Paperless 👋');
 }
 
+function runSignup() {
+  const name = document.getElementById('signup-name').value.trim();
+  const email = document.getElementById('signup-email').value.trim();
+  const pw = document.getElementById('signup-pw').value;
+  const pwConfirm = document.getElementById('signup-pw-confirm').value;
 
+  // Google alternative signup/bypass flow if fields are empty
+  if (!email && !pw) {
+    document.getElementById('signup-screen').classList.remove('open');
+    loadStoredData();
+    refreshReceiptList();
+    refreshDashboard();
+    switchPanel('dashboard');
+    showToast('Signed up with Google 👋');
+    return;
+  }
+
+  // Field Validations
+  if (!name) {
+    showToast('Please enter your name');
+    return;
+  }
+  if (!email || !email.includes('@')) {
+    showToast('Please enter a valid email address');
+    return;
+  }
+  if (pw.length < 6) {
+    showToast('Password must be at least 6 characters');
+    return;
+  }
+  if (pw !== pwConfirm) {
+    showToast('Passwords do not match');
+    return;
+  }
+
+  // Complete simulation
+  document.getElementById('signup-screen').classList.remove('open');
+  loadStoredData();
+  refreshReceiptList();
+  refreshDashboard();
+  switchPanel('dashboard');
+  showToast('Account created! Welcome 👋');
+}
+
+// ── UTILITIES ──────────────────────────────────
+let toastTimer;
+function showToast(msg){
   const t=document.getElementById('toast');
   t.textContent=msg;t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>t.classList.remove('show'),2400);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2500);
 }
-</script>
 
-<script>
-// ── Service Worker — offline support ──────────
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+
+// Service Worker Registration for Offline support
 if('serviceWorker' in navigator){
-  window.addEventListener('load',function(){
+  window.addEventListener('load',()=>{
     navigator.serviceWorker.register('/paperless-app/sw.js')
-    .then(function(reg){
-      console.log('Paperless: offline ready ✅');
-    }).catch(function(err){
-      console.log('Paperless: SW registration failed',err);
-    });
+    .then(()=>console.log('Paperless: Local storage offline sync ready'))
+    .catch(e=>console.log('SW registration skipped (standard preview layout):',e));
   });
 }
 </script>
