@@ -24,7 +24,8 @@
   --r:8px;--r2:12px;
   --font:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 }
-html,body{height:100%;overflow:hidden;background:var(--bg3);display:flex;flex-direction:column}
+html,body{height:100%;background:var(--bg3);margin:0;padding:0}
+#app-viewport{display:flex;flex-direction:column;height:100%;overflow:hidden}
 
 /* ── SVG Icons ── */
 .icon {
@@ -324,6 +325,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg3);display:flex;flex-di
 </style>
 </head>
 <body>
+
+<div id="app-viewport">
 
 <!-- TOPBAR -->
 <div class="topbar">
