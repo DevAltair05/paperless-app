@@ -945,25 +945,30 @@ auth.onAuthStateChanged(async (user) => {
 async function loadFirestoreData(){
   if(!currentUser) return;
   try {
-    // Always clear first — no mixing of demo/old data
     receipts = [];
 
+    // No orderBy — avoids composite index requirement
+    // We sort by date in JavaScript after loading
     const snap = await db.collection('receipts')
       .where('userId','==',currentUser.uid)
-      .orderBy('createdAt','desc')
-      .limit(200)
       .get();
 
-    // Map Firestore docs to receipt objects
     receipts = snap.docs.map(d=>({...d.data(), id:d.id}));
-    console.log('Loaded', receipts.length, 'receipts from Firestore for', currentUser.uid);
+
+    // Sort by createdAt descending in JS
+    receipts.sort((a,b)=>{
+      const aTime = a.createdAt?.seconds || 0;
+      const bTime = b.createdAt?.seconds || 0;
+      return bTime - aTime;
+    });
+
+    console.log('✅ Loaded', receipts.length, 'receipts for', currentUser.uid);
 
     // Load user settings
     const userDoc = await db.collection('users').doc(currentUser.uid).get();
     if(userDoc.exists && userDoc.data().settings){
       settings = {...settings, ...userDoc.data().settings};
     } else {
-      // Brand new user — create profile with 0 receipts
       await db.collection('users').doc(currentUser.uid).set({
         userId: currentUser.uid,
         email: currentUser.email || '',
@@ -975,8 +980,7 @@ async function loadFirestoreData(){
       });
     }
   } catch(err){
-    console.warn('Firestore load failed:', err.message);
-    // On error start with empty — do NOT load demo receipts
+    console.error('❌ Firestore load error:', err.code, err.message);
     receipts = [];
   }
 }
