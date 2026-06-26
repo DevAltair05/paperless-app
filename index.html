@@ -753,6 +753,15 @@ window.addEventListener('load', () => {
     <div class="modal">
       <div class="modal-handle"></div>
       <div class="modal-title">Edit receipt</div>
+
+      <!-- Photo section — shown only if receipt has a photo -->
+      <div id="edit-photo-section" style="display:none;margin-bottom:.875rem">
+        <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:6px">📷 Receipt photo (proof of purchase)</label>
+        <img id="edit-photo-img" src="" alt="Receipt photo"
+          style="width:100%;border-radius:var(--r);max-height:160px;object-fit:cover;border:1px solid var(--border);cursor:pointer"
+          onclick="viewFullPhoto(this.src)">
+      </div>
+
       <div class="field"><label>Merchant name</label><input id="f-merchant" type="text"></div>
       <div class="field"><label>Date</label><input id="f-date" type="date"></div>
       <div class="two-col">
@@ -895,6 +904,53 @@ if(window.location.protocol === 'file:'){
     document.body.appendChild(overlay);
   });
 }
+// ── INDEXEDDB PHOTO STORAGE ────────────────────
+// Stores receipt photos locally — no Firebase Storage needed
+// Works completely free on Spark plan
+// Photos persist across sessions on same device
+const PhotoDB = {
+  db: null,
+  async init(){
+    return new Promise((resolve,reject)=>{
+      const req=indexedDB.open('PaperlessPhotos',1);
+      req.onupgradeneeded=e=>e.target.result.createObjectStore('photos',{keyPath:'id'});
+      req.onsuccess=e=>{this.db=e.target.result;resolve();};
+      req.onerror=()=>reject(req.error);
+    });
+  },
+  async save(id,base64){
+    if(!this.db)await this.init();
+    return new Promise(resolve=>{
+      const tx=this.db.transaction('photos','readwrite');
+      tx.objectStore('photos').put({id,data:base64});
+      tx.oncomplete=()=>resolve(true);
+      tx.onerror=()=>resolve(false);
+    });
+  },
+  async get(id){
+    if(!this.db)await this.init();
+    return new Promise(resolve=>{
+      const tx=this.db.transaction('photos','readonly');
+      const req=tx.objectStore('photos').get(id);
+      req.onsuccess=()=>resolve(req.result?.data||null);
+      req.onerror=()=>resolve(null);
+    });
+  },
+  async delete(id){
+    if(!this.db)await this.init();
+    return new Promise(resolve=>{
+      const tx=this.db.transaction('photos','readwrite');
+      tx.objectStore('photos').delete(id);
+      tx.oncomplete=()=>resolve(true);
+      tx.onerror=()=>resolve(false);
+    });
+  }
+};
+PhotoDB.init().catch(e=>console.warn('PhotoDB init:',e));
+
+// Holds the current photo during scan flow
+let _currentPhotoBase64=null;
+
 const firebaseConfig = {
   apiKey: "AIzaSyC8c91MqQwjgJzSM0TSTBXgAa_ZBk4TCUQ",
   authDomain: "paperless-app-deb17.firebaseapp.com",
@@ -1180,11 +1236,15 @@ function renderReceiptRow(r, actualIdx){
   const bg=catBg[r.cat]||'#f1f0ee';
   const icon=catIcon[r.cat]||catIcon.Other;
   const symbol = currencySymbols[settings.currency] || '$';
-  
+  // Show camera icon if receipt has a photo attached
+  const photoIcon = r.hasPhoto
+    ? `<span style="font-size:10px;color:var(--text3);margin-left:4px" title="Has photo">📷</span>`
+    : '';
+
   return `<button class="receipt-row" onclick="openEdit(${actualIdx})" style="width:100%;text-align:left;border:none;cursor:pointer">
     <div class="receipt-icon" style="background:${bg}">${icon}</div>
     <div class="receipt-info">
-      <div class="receipt-merchant">${escapeHtml(r.merchant)}</div>
+      <div class="receipt-merchant">${escapeHtml(r.merchant)}${photoIcon}</div>
       <div class="receipt-meta">${r.date} · ${escapeHtml(r.note||'')}</div>
     </div>
     <div style="text-align:right;flex-shrink:0">
@@ -1267,7 +1327,7 @@ function filterReceipts(q){
 
 // ── EDIT MODAL ─────────────────────────────────
 let editingIdx=null;
-function openEdit(idx){
+async function openEdit(idx){
   editingIdx=idx;
   const r=receipts[idx];
   document.getElementById('f-merchant').value=r.merchant;
@@ -1276,6 +1336,25 @@ function openEdit(idx){
   document.getElementById('f-tax').value=r.tax;
   document.getElementById('f-cat').value=r.cat;
   document.getElementById('f-notes').value=r.note||'';
+
+  // Load photo from IndexedDB if receipt has one
+  const photoEl = document.getElementById('edit-photo-section');
+  if(photoEl){
+    if(r.hasPhoto){
+      photoEl.style.display='block';
+      const photo = await PhotoDB.get(r.id);
+      const imgEl = document.getElementById('edit-photo-img');
+      if(imgEl && photo){
+        imgEl.src = photo;
+      } else if(imgEl){
+        imgEl.src='';
+        photoEl.style.display='none';
+      }
+    } else {
+      photoEl.style.display='none';
+    }
+  }
+
   document.getElementById('edit-modal').classList.add('open');
 }
 
@@ -1317,14 +1396,38 @@ async function saveEdit(){
 async function deleteReceiptEntry(){
   if(editingIdx!==null){
     const receiptId=receipts[editingIdx].id;
+    const hadPhoto=receipts[editingIdx].hasPhoto;
     receipts.splice(editingIdx,1);
     if(currentUser){ deleteFromFirestore(receiptId); }
     else { saveData(); }
+    // Delete photo from IndexedDB too
+    if(hadPhoto){ await PhotoDB.delete(receiptId); }
   }
   refreshReceiptList();
   refreshDashboard();
   closeModal();
   showToast('Receipt deleted');
+}
+
+// ── VIEW FULL PHOTO (tap photo to expand) ──────
+function viewFullPhoto(src){
+  if(!src) return;
+  const overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:99999;display:flex;align-items:center;justify-content:center;padding:1rem;cursor:pointer';
+  overlay.onclick=()=>overlay.remove();
+  overlay.innerHTML=`
+    <div style="position:relative;max-width:480px;width:100%" onclick="event.stopPropagation()">
+      <img src="${src}" style="width:100%;border-radius:12px;object-fit:contain;max-height:78vh;display:block">
+      <button onclick="this.closest('div').parentNode.remove()"
+        style="position:absolute;top:-14px;right:-14px;width:34px;height:34px;border-radius:50%;
+        background:#fff;border:none;font-size:20px;cursor:pointer;
+        display:flex;align-items:center;justify-content:center;
+        box-shadow:0 2px 12px rgba(0,0,0,.4);font-weight:700">×</button>
+      <div style="text-align:center;margin-top:.875rem;font-size:12px;color:rgba(255,255,255,.55)">
+        📷 Proof of purchase · Tap × or outside to close
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
 }
 
 // ── SCANNING & AI PIPELINE SIMULATOR ───────────
@@ -1345,36 +1448,35 @@ function triggerUpload(){
 
 function handleRealFile(file){
   const body=document.getElementById('scan-modal-body');
-  body.innerHTML=`<div class="modal-title">AI extraction</div><div class="ai-thinking"><div class="dot-pulse"><span></span><span></span><span></span></div> Reading your receipt…</div>`;
+  body.innerHTML=`<div class="modal-title">Photo receipt</div><div class="ai-thinking"><div class="dot-pulse"><span></span><span></span><span></span></div> Loading photo…</div>`;
   document.getElementById('scan-modal').classList.add('open');
   const reader=new FileReader();
   reader.onload=ev=>{
     const src=ev.target.result;
-    body.innerHTML=`<div class="modal-title">AI extraction</div>
-      <img src="${src}" style="width:100%;border-radius:var(--r);margin-bottom:.875rem;max-height:160px;object-fit:cover">
-      <div class="ai-thinking"><div class="dot-pulse"><span></span><span></span><span></span></div> AI is reading your receipt…</div>`;
-    setTimeout(()=>{
-      body.innerHTML=`<div class="modal-title">Confirm details</div>
-        <div style="background:var(--green-light);border-radius:var(--r);padding:.625rem .875rem;margin-bottom:.875rem;font-size:12px;color:var(--green);display:flex;align-items:center;gap:6px">
-          <svg class="icon" viewBox="0 0 24 24" style="color:var(--green)"><polyline points="20 6 9 17 4 12"/></svg> Photo received — confirm details
-        </div>
-        <img src="${src}" style="width:100%;border-radius:var(--r);margin-bottom:.875rem;max-height:100px;object-fit:cover">
-        <div class="field"><label>Merchant name</label><input type="text" id="r-merchant" placeholder="e.g. Starbucks"></div>
-        <div class="field"><label>Date</label><input type="date" id="r-date" value="${new Date().toISOString().split('T')[0]}"></div>
-        <div class="two-col">
-          <div class="field"><label>Total</label><input type="number" id="r-total" step="0.01" placeholder="0.00"></div>
-          <div class="field"><label>Tax</label><input type="number" id="r-tax" step="0.01" placeholder="0.00"></div>
-        </div>
-        <div class="field"><label>Category</label>
-          <select id="r-cat"><option>Food</option><option>Travel</option><option>Software</option><option>Office</option><option>Other</option></select>
-        </div>
-        <div class="modal-btns">
-          <button class="btn" onclick="closeScanModal()">Cancel</button>
-          <button class="btn primary" onclick="saveRealReceipt()">
-            <svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px;margin-right:2px"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8"/></svg> Save
-          </button>
-        </div>`;
-    },1800);
+    // Store photo in memory — will be saved to IndexedDB with the receipt
+    _currentPhotoBase64 = src;
+    body.innerHTML=`<div class="modal-title">Add receipt details</div>
+      <div style="background:var(--green-light);border-radius:var(--r);padding:.625rem .875rem;margin-bottom:.875rem;font-size:12px;color:var(--green);display:flex;align-items:center;gap:6px">
+        <svg class="icon" viewBox="0 0 24 24" style="color:var(--green)"><polyline points="20 6 9 17 4 12"/></svg>
+        Photo captured — fill in the details below for tax records
+      </div>
+      <img src="${src}" style="width:100%;border-radius:var(--r);margin-bottom:.875rem;max-height:140px;object-fit:cover;border:1px solid var(--border)">
+      <div class="field"><label>Merchant name</label><input type="text" id="r-merchant" placeholder="e.g. Starbucks"></div>
+      <div class="field"><label>Date</label><input type="date" id="r-date" value="${new Date().toISOString().split('T')[0]}"></div>
+      <div class="two-col">
+        <div class="field"><label>Total</label><input type="number" id="r-total" step="0.01" placeholder="0.00"></div>
+        <div class="field"><label>Tax</label><input type="number" id="r-tax" step="0.01" placeholder="0.00"></div>
+      </div>
+      <div class="field"><label>Category</label>
+        <select id="r-cat"><option>Food</option><option>Travel</option><option>Software</option><option>Office</option><option>Other</option></select>
+      </div>
+      <div class="field"><label>Notes (optional)</label><input type="text" id="r-note" placeholder="e.g. Client lunch"></div>
+      <div class="modal-btns">
+        <button class="btn" onclick="closeScanModal()">Cancel</button>
+        <button class="btn primary" onclick="saveRealReceipt()">
+          <svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px;margin-right:2px"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8"/></svg> Save receipt + photo
+        </button>
+      </div>`;
   };
   reader.readAsDataURL(file);
 }
@@ -1417,10 +1519,12 @@ function runDemo(type){
   },1200);
 }
 
-function closeScanModal(){document.getElementById('scan-modal').classList.remove('open')}
+function closeScanModal(){
+  document.getElementById('scan-modal').classList.remove('open');
+  _currentPhotoBase64 = null; // clear photo on cancel
+}
 
 async function saveRealReceipt(){
-  // Must be logged in to save to Firestore
   if(!currentUser){
     showToast('Please log in first to save receipts');
     return;
@@ -1432,18 +1536,26 @@ async function saveRealReceipt(){
   const tax      = parseFloat(document.getElementById('r-tax').value    || 0).toFixed(2);
   const cat      = document.getElementById('r-cat').value;
   const note     = document.getElementById('r-note')?.value.trim() || 'Scanned receipt';
-  const receipt  = { merchant, note, date, total, tax, cat };
+  const hasPhoto = !!_currentPhotoBase64;
+  const receipt  = { merchant, note, date, total, tax, cat, hasPhoto };
+
+  // Capture photo before closing modal
+  const photoToSave = _currentPhotoBase64;
 
   closeScanModal();
   showToast('Saving...');
 
   const id = await saveToFirestore(receipt);
   if(id){
+    // Save photo to IndexedDB using the Firestore doc ID as key
+    if(photoToSave){
+      await PhotoDB.save(id, photoToSave);
+    }
     receipts.unshift({ id, ...receipt });
     refreshReceiptList();
     refreshDashboard();
     switchPanel('dashboard');
-    showToast('Receipt saved ✓');
+    showToast(hasPhoto ? 'Receipt + photo saved ✓' : 'Receipt saved ✓');
   } else {
     showToast('Failed to save — check your connection');
   }
